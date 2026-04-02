@@ -20,7 +20,6 @@
             @include('layouts.dashboard.header')
 
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-white p-8 sm:p-12 relative z-0">
-                
                
 
             </main>

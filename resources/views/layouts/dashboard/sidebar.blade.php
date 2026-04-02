@@ -89,80 +89,9 @@
 </aside>
 
 {{-- =============================================
-     SPA NAVIGATION SCRIPT
-     Taruh ini di bagian bawah layout utama
-     (sebelum </body> atau di @push('scripts'))
+     SPA NAVIGATION SCRIPT (UPDATED)
      ============================================= --}}
 <style>
-    /* Overlay loading saat fetch */
-    #spa-loader {
-        pointer-events: none;
-        transition: opacity 0.2s ease;
-    }
-
-    /* Animasi konten masuk */
-    @keyframes spaFadeSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes spaFadeSlideOut {
-        from {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-    }
-
-    .spa-content-enter {
-        animation: spaFadeSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-
-    .spa-content-leave {
-        animation: spaFadeSlideOut 0.2s ease forwards;
-    }
-
-    /* Active link highlight */
-    .spa-nav-link.spa-active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    /* Ripple effect pada klik nav */
-    .spa-nav-link {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .spa-ripple {
-        position: absolute;
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-        background: rgba(255, 255, 255, 0.25);
-        transform: scale(0);
-        animation: spaRipple 0.5s linear;
-        pointer-events: none;
-    }
-
-    @keyframes spaRipple {
-        to {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
-
     /* Progress bar di atas halaman */
     #spa-progress {
         position: fixed;
@@ -183,38 +112,46 @@
         0%   { background-position: 200% 0; }
         100% { background-position: -200% 0; }
     }
+
+    /* Animasi konten masuk & keluar */
+    @keyframes spaFadeSlideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spaFadeSlideOut {
+        from { opacity: 1; transform: translateY(0); }
+        to   { opacity: 0; transform: translateY(-8px); }
+    }
+
+    .spa-content-enter {
+        animation: spaFadeSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    .spa-content-leave {
+        animation: spaFadeSlideOut 0.2s ease forwards;
+    }
+
+    /* Active link highlight */
+    .spa-nav-link.spa-active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
 </style>
 
 {{-- Progress bar element --}}
 <div id="spa-progress"></div>
 
 <script>
-(function () {
-    /**
-     * =============================================
-     * SPA-like Navigation untuk Laravel Blade
-     * - Fetch halaman baru via AJAX
-     * - Swap hanya konten utama (#spa-content)
-     * - Update URL dengan History API
-     * - Animasi fade+slide yang smooth
-     * - Ripple effect pada klik nav
-     * - Progress bar saat loading
-     * =============================================
-     *
-     * SYARAT:
-     * Bungkus konten utama di layout Anda dengan:
-     *   <main id="spa-content"> ... </main>
-     * Dan pastikan sidebar menggunakan atribut: data-spa-link
-     */
-
-    const CONTENT_ID    = 'spa-content';   // ID wrapper konten utama
-    const NAV_LINK_ATTR = 'data-spa-link'; // Atribut penanda link SPA
-    const ACTIVE_CLASS  = 'spa-active';    // Class untuk link aktif
+document.addEventListener('DOMContentLoaded', function () {
+    const CONTENT_ID    = 'spa-content';   
+    const NAV_LINK_ATTR = 'data-spa-link'; 
+    const ACTIVE_CLASS  = 'spa-active';    
 
     const progressBar = document.getElementById('spa-progress');
-    let   isNavigating = false;
+    let isNavigating = false;
 
-    // ---- Progress Bar ----
+    // ---- Progress Bar Logic ----
     function showProgress() {
         progressBar.style.display = 'block';
         progressBar.style.width   = '0%';
@@ -228,25 +165,15 @@
         setTimeout(() => {
             progressBar.style.display = 'none';
             progressBar.style.width   = '0%';
-        }, 400);
+        }, 300);
     }
 
-    // ---- Ripple Effect ----
-    function createRipple(el, e) {
-        const rect   = el.getBoundingClientRect();
-        const ripple = document.createElement('span');
-        ripple.classList.add('spa-ripple');
-        ripple.style.left = (e.clientX - rect.left - 40) + 'px';
-        ripple.style.top  = (e.clientY - rect.top  - 40) + 'px';
-        el.appendChild(ripple);
-        ripple.addEventListener('animationend', () => ripple.remove());
-    }
-
-    // ---- Update active link di sidebar ----
+    // ---- Update Active Link ----
     function updateActiveLinks(url) {
         document.querySelectorAll(`[${NAV_LINK_ATTR}]`).forEach(link => {
             const href = link.getAttribute('href');
-            if (href && href !== '#' && url.includes(href)) {
+            // Pastikan tidak me-match link kosong atau '#'
+            if (href && href !== '#' && url.split('?')[0] === href.split('?')[0]) {
                 link.classList.add(ACTIVE_CLASS);
             } else {
                 link.classList.remove(ACTIVE_CLASS);
@@ -254,86 +181,76 @@
         });
     }
 
-    // ---- Navigasi SPA Utama ----
+    // ---- Fungsi Utama Navigasi SPA ----
     async function navigateTo(url, pushState = true) {
         if (isNavigating || url === window.location.href || url === '#') return;
         isNavigating = true;
 
         showProgress();
-
         const contentEl = document.getElementById(CONTENT_ID);
 
-        // Animasi keluar konten lama
+        // 1. Animasi keluar konten lama
         if (contentEl) {
             contentEl.classList.add('spa-content-leave');
-            await new Promise(r => setTimeout(r, 200));
-            contentEl.classList.remove('spa-content-leave');
+            await new Promise(r => setTimeout(r, 200)); // Tunggu animasi selesai
         }
 
         try {
+            // 2. Fetch halaman baru
             const response = await fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-SPA-Request':    'true',
+                    'X-SPA-Request': 'true',
                 },
-                credentials: 'same-origin',
             });
 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
 
-            const html   = await response.text();
+            const html = await response.text();
             const parser = new DOMParser();
-            const doc    = parser.parseFromString(html, 'text/html');
+            const doc = parser.parseFromString(html, 'text/html');
 
-            // Ambil konten baru
             const newContent = doc.getElementById(CONTENT_ID);
-            const newTitle   = doc.title;
+            const newTitle = doc.title;
 
             if (newContent && contentEl) {
-                // Swap konten
+                // 3. Swap Konten
                 contentEl.innerHTML = newContent.innerHTML;
 
-                // Animasi masuk konten baru
+                // 4. Update Judul & History Browser
+                document.title = newTitle;
+                if (pushState) {
+                    history.pushState({ url }, newTitle, url);
+                }
+
+                // 5. Re-init Alpine.js (Kompatibilitas Laravel Breeze / Alpine v3)
+                if (window.Alpine) {
+                    Alpine.initTree(contentEl); 
+                }
+
+                // 6. Jalankan Animasi Masuk
+                contentEl.classList.remove('spa-content-leave');
                 contentEl.classList.add('spa-content-enter');
                 contentEl.addEventListener('animationend', () => {
                     contentEl.classList.remove('spa-content-enter');
                 }, { once: true });
 
-                // Update judul & URL
-                document.title = newTitle;
-
-                if (pushState) {
-                    history.pushState({ url }, newTitle, url);
-                }
-
-                // Re-init Alpine.js jika ada komponen baru
-                if (window.Alpine) {
-                    Alpine.initTree(contentEl);
-                }
-
-                // Update active link
                 updateActiveLinks(url);
-
-                // Scroll ke atas
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-
             } else {
-                // Fallback: kalau tidak ada #spa-content, hard navigate
+                // Fallback jika tidak ada id="spa-content" di halaman tujuan
                 window.location.href = url;
-                return;
             }
-
         } catch (err) {
-            console.error('[SPA] Navigation error:', err);
-            // Fallback ke navigasi biasa jika fetch gagal
-            window.location.href = url;
+            console.error('[SPA Error]:', err);
+            window.location.href = url; // Fallback hard-reload jika error
         } finally {
             finishProgress();
             isNavigating = false;
         }
     }
 
-    // ---- Event Delegation: klik semua link SPA ----
+    // ---- Event Listener untuk klik link ----
     document.addEventListener('click', function (e) {
         const link = e.target.closest(`[${NAV_LINK_ATTR}]`);
         if (!link) return;
@@ -341,24 +258,24 @@
         const href = link.getAttribute('href');
         if (!href || href === '#') return;
 
-        // Biarkan Ctrl/Cmd+Click tetap buka tab baru
+        // Izinkan open in new tab (Ctrl+Click / Cmd+Click)
         if (e.ctrlKey || e.metaKey || e.shiftKey) return;
 
         e.preventDefault();
-        createRipple(link, e);
         navigateTo(href);
     });
 
-    // ---- Tangani tombol Back/Forward browser ----
+    // ---- Handle tombol Back/Forward Browser ----
     window.addEventListener('popstate', function (e) {
         if (e.state && e.state.url) {
             navigateTo(e.state.url, false);
+        } else {
+            window.location.reload();
         }
     });
 
-    // ---- Set state awal ----
+    // Inisialisasi awal
     history.replaceState({ url: window.location.href }, document.title, window.location.href);
     updateActiveLinks(window.location.href);
-
-})();
+});
 </script>
