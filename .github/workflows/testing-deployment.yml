@@ -1,62 +1,84 @@
-name: Laravel CI/CD Workflow
+name: Laravel CI/CD (Full Auto Deploy)
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  ci:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Run CI job
-        uses: basantsd/laravel-ci-cd@v2
+      # 1. Checkout code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Setup PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          job: 'ci'
-          github_token: ${{ secrets.TOKEN }}
-          repo: 'https://github.com/MuhammadHadistRifannan/CBT-MandiriPNC.git'
+          php-version: 8.2
+          extensions: mbstring, bcmath, pdo, mysql
+          coverage: none
+
+      # 3. Install Composer Dependencies
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      # 4. Setup Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@3
-        with: 
-            node-version:18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-      - name: Install Dependencies
+      # 5. Install NPM Dependencies
+      - name: Install NPM Dependencies
         run: npm install
 
-      - name: Build Vite Access 
+      # 6. Build Vite (optional di CI, tapi kita tetap build di VPS juga)
+      - name: Build Assets (CI)
         run: npm run build
 
-
-  code_cleanup:
-    runs-on: ubuntu-latest
-    needs: ci
-    steps:
-      - name: Run Code Cleanup job
-        uses: basantsd/laravel-ci-cd@v2
+      # 7. Deploy ke VPS + BUILD FINAL DI SERVER
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.6
         with:
-          job: 'code_cleanup'
-          github_token: ${{ secrets.TOKEN }}
-          repo: 'https://github.com/MuhammadHadistRifannan/CBT-MandiriPNC.git'
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Start Deploy"
 
-  cd:
-    runs-on: ubuntu-latest
-    needs: code_cleanup
-    steps:
-      - name: Run CD job
-        uses: basantsd/laravel-ci-cd@v2
-        with:
-          job: 'cd'
-          vps_private_key: ${{ secrets.VPS_PRIVATE_KEY }}
-          vps_username: ${{ secrets.VPS_USERNAME }}
-          vps_host: ${{ secrets.VPS_HOST }}
-          deploy_path: '/'
-          production_branch: 'main'
-          php_version: '8.2'
-          github_token: ${{ secrets.TOKEN }}
-          repo: 'https://github.com/MuhammadHadistRifannan/CBT-MandiriPNC.git'
-    
-      - name: Install NPM
-        run: npm install
+            # masuk ke folder project (WAJIB GANTI!)
+            cd /home/CBT-Mandiri
 
-      - name: Build Assets
-        run: npm run build
+            # update code
+            git pull origin main
+
+            echo "📦 Install Composer"
+            composer install --no-dev --optimize-autoloader
+
+            echo "📦 Install NPM"
+            npm install
+
+            echo "⚡ Build Vite"
+            npm run build
+
+            echo "🧹 Clear Cache"
+            php artisan config:clear
+            php artisan cache:clear
+            php artisan view:clear
+            php artisan route:clear
+
+            echo "⚙️ Optimize"
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            echo "🗄️ Migration"
+            php artisan migrate --force
+
+            echo "🔐 Set Permission"
+            chmod -R 775 storage bootstrap/cache
+
+            echo "✅ Deploy Selesai"
