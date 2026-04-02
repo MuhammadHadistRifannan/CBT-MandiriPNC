@@ -70,7 +70,7 @@ jobs:
             php artisan view:clear
             php artisan route:clear
 
-            echo "⚙️ Optimize"
+            echo "Optimize"
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
