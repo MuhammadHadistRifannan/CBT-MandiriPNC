@@ -55,7 +55,7 @@ jobs:
             # update code
             git pull origin main
 
-            echo "📦 Install Composer"
+            echo "Install Composer"
             composer install --no-dev --optimize-autoloader
 
             echo "Install NPM"
