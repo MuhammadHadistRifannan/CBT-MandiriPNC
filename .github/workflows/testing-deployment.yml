@@ -58,7 +58,7 @@ jobs:
             echo "📦 Install Composer"
             composer install --no-dev --optimize-autoloader
 
-            echo "📦 Install NPM"
+            echo "Install NPM"
             npm install
 
             echo "⚡ Build Vite"
