@@ -76,8 +76,13 @@ jobs:
             php artisan route:cache
             php artisan view:cache
 
+            echo "Copying Env File"
+            cp .env.example .env
+
             echo "🗄️ Migration"
             php artisan migrate --force
+
+            php artisan key:generate
 
             echo "🔐 Set Permission"
             chmod -R 775 storage bootstrap/cache
