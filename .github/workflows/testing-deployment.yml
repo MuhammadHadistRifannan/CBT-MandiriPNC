@@ -17,7 +17,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.4
           extensions: mbstring, bcmath, pdo, mysql
           coverage: none
 
@@ -50,7 +50,7 @@ jobs:
             echo "🚀 Start Deploy"
 
             # masuk ke folder project (WAJIB GANTI!)
-            cd /home/CBT-Mandiri
+            cd /home/CBT-MandiriPNC
 
             # update code
             git pull origin main
