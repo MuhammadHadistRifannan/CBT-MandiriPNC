@@ -5,7 +5,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-interaction --no-scripts --prefer-dist
 
 # Stage 2: Final Image
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 # Install system dependencies and PHP extensions
 RUN apk add --no-cache \
