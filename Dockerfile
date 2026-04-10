@@ -28,6 +28,7 @@ COPY . /var/www
 
 # Fix permissions for Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+ENV TMPDIR=/tmp
 
 # Copy Nginx config (we will create this next)
 COPY ./docker/nginx.conf /etc/nginx/http.d/default.conf
