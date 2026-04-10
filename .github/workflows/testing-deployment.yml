@@ -18,20 +18,20 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SECRET_KEY }}
           script: |
-            # 1. Navigate to the project directory
             cd /home/CBT-MandiriPNC
+            
+            # 1. Sync code
+            git pull origin main
 
-            # 2. Pull the latest code from GitHub
-            git pull
+            # 2. Refresh containers and volumes
+            # Adding --force-recreate ensures the anonymous vendor volume is fresh
+            docker compose down
+            docker compose up -d --build --force-recreate
 
-            # 3. Build and restart containers in detached mode
-            # --build ensures it picks up any changes in your Dockerfile or nginx.conf
-            docker compose up -d --build
-
-            # 4. Run Laravel specific commands INSIDE the container
-            # We use 'docker compose exec -T' to run commands without a TTY
+            # 3. Wait for DB and Run Laravel tasks
+            sleep 5
             docker compose exec -T app php artisan migrate --force
             docker compose exec -T app php artisan optimize
             
-            # 5. Clean up unused images to save disk space on your VPS
+            # 4. Clean up
             docker image prune -f
