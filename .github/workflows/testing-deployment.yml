@@ -30,7 +30,7 @@ jobs:
 
             # 4. Run Laravel specific commands INSIDE the container
             # We use 'docker compose exec -T' to run commands without a TTY
-            docker compose exec app composer install
+            docker compose exec -T app composer install
             docker compose exec -T app php artisan migrate --force
             docker compose exec -T app php artisan optimize
             

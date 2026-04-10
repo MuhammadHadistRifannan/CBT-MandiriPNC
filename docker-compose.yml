@@ -1,5 +1,4 @@
 services:
-  # Laravel App (includes Nginx + PHP)
   app:
     build:
       context: .
@@ -10,12 +9,12 @@ services:
       - "8080:80"
     volumes:
       - ./:/var/www
+      - /var/www/vendor        # <--- ADD THIS LINE: Protects the vendor folder
     depends_on:
       - db
     networks:
       - cbt-network
 
-  # MySQL Database
   db:
     image: mysql:8.0
     container_name: cbt-mandiri-db
