@@ -22,8 +22,8 @@ services:
     environment:
       MYSQL_DATABASE: cbt_db
       MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_USER: cbt_user
       MYSQL_PASSWORD: admin123
-      MYSQL_USER: root
     ports:
       - "3306:3306"
     volumes:
