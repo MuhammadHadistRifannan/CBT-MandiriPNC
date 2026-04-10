@@ -22,7 +22,7 @@ jobs:
             cd /home/CBT-Mandiri
 
             # 2. Pull the latest code from GitHub
-            git pull origin main
+            git pull
 
             # 3. Build and restart containers in detached mode
             # --build ensures it picks up any changes in your Dockerfile or nginx.conf
