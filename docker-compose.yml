@@ -1,0 +1,41 @@
+services:
+  # Laravel App (includes Nginx + PHP)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cbt-mandiri-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - db
+    networks:
+      - cbt-network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: cbt-mandiri-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - cbt-network
+
+networks:
+  cbt-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

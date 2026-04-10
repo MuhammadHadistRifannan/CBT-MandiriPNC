@@ -18,10 +18,20 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SECRET_KEY }}
           script: |
+            # 1. Navigate to the project directory
             cd /home/CBT-Mandiri
+
+            # 2. Pull the latest code from GitHub
             git pull origin main
-            composer install --no-interaction --prefer-dist --optimize-autoloader
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+
+            # 3. Build and restart containers in detached mode
+            # --build ensures it picks up any changes in your Dockerfile or nginx.conf
+            docker compose up -d --build
+
+            # 4. Run Laravel specific commands INSIDE the container
+            # We use 'docker compose exec -T' to run commands without a TTY
+            docker compose exec -T app php artisan migrate --force
+            docker compose exec -T app php artisan optimize
+            
+            # 5. Clean up unused images to save disk space on your VPS
+            docker image prune -f
