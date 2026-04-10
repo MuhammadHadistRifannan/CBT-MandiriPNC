@@ -1,90 +1,27 @@
-name: Laravel CI/CD (Full Auto Deploy)
+name: Deploy CBT Mandiri
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: VPS_SECRET
-
     steps:
-      # 1. Checkout code
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      # 2. Setup PHP
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
         with:
-          php-version: 8.4
-          extensions: mbstring, bcmath, pdo, mysql
-          coverage: none
-
-      # 3. Install Composer Dependencies
-      - name: Install Composer Dependencies
-        run: composer install --no-dev --optimize-autoloader
-
-      # 4. Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
-      # 5. Install NPM Dependencies
-      - name: Install NPM Dependencies
-        run: npm install
-
-      # 6. Build Vite (optional di CI, tapi kita tetap build di VPS juga)
-      - name: Build Assets (CI)
-        run: npm run build
-
-      # 7. Deploy ke VPS + BUILD FINAL DI SERVER
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🚀 Start Deploy"
-
-            # masuk ke folder project (WAJIB GANTI!)
-            cd /home/CBT-MandiriPNC
-
-            # update code
+            cd /home/CBT-Mandiri
             git pull origin main
-
-            echo "Install Composer"
-            composer install --no-dev --optimize-autoloader
-
-            echo "Install NPM"
-            npm install
-
-            echo "⚡ Build Vite"
-            npm run build
-
-            echo "🧹 Clear Cache"
-            php artisan config:clear
-            php artisan cache:clear
-            php artisan view:clear
-            php artisan route:clear
-
-            echo "Optimize"
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-
-            echo "Copying Env File"
-            cp .env.example .env
-
-            echo "🗄️ Migration"
-            php artisan migrate --force
-
-            php artisan key:generate
-
-            echo "🔐 Set Permission"
-            chmod -R 775 storage bootstrap/cache
-
-            echo "✅ Deploy Selesai"
