@@ -30,4 +30,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    public function pilihan(){
+        return $this->belongsTo(PilihanProdi::class);
+    }
+
+    public function pilihan_1(){
+        return $this->belongsTo(PilihanProdi::class , 'pilihan_1');
+    }
+    public function pilihan_2(){
+        return $this->belongsTo(PilihanProdi::class , 'pilihan_2');
+    }
+
+
 }

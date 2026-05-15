@@ -1,281 +1,249 @@
-<aside x-data="{ expanded: true }" 
-       :class="expanded ? 'w-64' : 'w-20'"
-       class="h-screen flex flex-col bg-gradient-to-b from-[#0F65B6] to-[#E0F0FF] relative overflow-hidden shrink-0 shadow-lg transition-all duration-300 ease-in-out z-20">
-    
-    <div class="absolute top-6 left-6 z-30">
-        <button @click="expanded = !expanded" class="text-white hover:text-gray-200 focus:outline-none transition-transform hover:scale-110">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </button>
+<aside x-data="{ expanded: true, mobileOpen: false }" class="relative z-50">
+
+    {{-- MOBILE OVERLAY --}}
+    <div x-show="mobileOpen" x-transition.opacity class="fixed inset-0 bg-black/50 lg:hidden"
+        @click="mobileOpen = false">
     </div>
 
-    <img src="{{ asset('assets/images/corner.png') }}" 
-         :class="expanded ? 'opacity-80' : 'opacity-0'"
-         alt="Wave Top" 
-         class="absolute top-0 right-0 w-32 pointer-events-none transform rotate-90 transition-opacity duration-300">
-    <img src="{{ asset('assets/images/corner.png') }}" 
-         :class="expanded ? 'opacity-80' : 'opacity-0'"
-         alt="Wave Bottom" 
-         class="absolute bottom-0 left-0 w-48 pointer-events-none transform -rotate-90 transition-opacity duration-300">
+    {{-- MOBILE BUTTON --}}
+    <button @click="mobileOpen = true"
+        class="fixed top-4 left-4 z-50 lg:hidden bg-[#0F4C81] text-white p-3 rounded-xl shadow-lg">
 
-    <div class="relative z-10 flex flex-col h-full mt-12">
-        
-        <div class="flex flex-col items-center pt-6 pb-6 transition-all duration-300">
-            <img src="{{ asset('assets/images/pnc-logo.png') }}" 
-                 alt="Logo CBT Mandiri PNC" 
-                 :class="expanded ? 'w-20 h-20 mb-3' : 'w-10 h-10 mb-1'"
-                 class="drop-shadow-md transition-all duration-300">
-            <h2 x-show="expanded" x-transition.opacity.duration.300ms class="text-white text-sm font-bold tracking-widest drop-shadow-sm whitespace-nowrap">
-                CBT Mandiri PNC
-            </h2>
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    {{-- SIDEBAR --}}
+    <div :class="{
+            'translate-x-0': mobileOpen,
+            '-translate-x-full lg:translate-x-0': !mobileOpen,
+            'w-64': expanded,
+            'w-20': !expanded
+        }"
+        class="fixed lg:static inset-y-0 left-0 bg-[#0F4C81] border-r border-white/10 flex flex-col transition-all duration-300 shrink-0 h-screen">
+
+        {{-- HEADER --}}
+        <div class="relative px-5 py-6 border-b border-white/10">
+
+            {{-- EXPAND BUTTON --}}
+            <button @click="expanded = !expanded"
+                class="hidden lg:flex absolute -right-4 top-7 bg-white text-[#0F4C81] w-9 h-9 items-center justify-center rounded-xl shadow-lg hover:scale-105 transition">
+
+                <svg :class="expanded ? '' : 'rotate-180'" class="w-5 h-5 transition duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+
+            <div class="flex items-center gap-4">
+
+                <img src="{{ asset('assets/images/pnc-logo.png') }}" class="w-12 h-12 object-contain shrink-0">
+
+                <div x-show="expanded" x-transition.opacity>
+                    <h1 class="text-white font-bold text-sm tracking-wide">
+                        CBT MANDIRI
+                    </h1>
+
+                    <p class="text-slate-300 text-xs">
+                        Politeknik Negeri Cilacap
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <nav :class="expanded ? 'px-4' : 'px-2'" class="flex-1 space-y-2 mt-2 transition-all duration-300">
+        {{-- MENU --}}
+        <div class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
 
-            {{-- Home --}}
-            <a href="{{ route('dashboard') }}" 
-               data-spa-link
-               :class="expanded ? 'justify-start px-4' : 'justify-center px-0'" 
-               class="spa-nav-link flex items-center py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('dashboard') ? 'bg-white/20 text-white font-bold shadow-sm' : 'text-white/80 hover:bg-white/20 hover:text-white font-medium' }}">
-                <svg :class="expanded ? 'mr-3' : 'mr-0'" class="w-5 h-5 shrink-0 transition-all duration-300 group-hover:scale-110" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                </svg>
-                <span x-show="expanded" class="text-sm whitespace-nowrap">Home</span>
-            </a>
+            {{-- MENU UTAMA --}}
+            <div>
 
-            {{-- Pilih Prodi --}}
-            <a href="{{ route('prodi') }}" 
-               data-spa-link
-               :class="expanded ? 'justify-start px-4' : 'justify-center px-0'" 
-               class="spa-nav-link flex items-center py-3 rounded-xl transition-all duration-300 group {{ request()->routeIs('prodi') ? 'bg-white/20 text-white font-bold shadow-sm' : 'text-white/80 hover:bg-white/20 hover:text-white font-medium' }}">
-                <img src="{{ asset('assets/images/school.png') }}" alt="Pilih Prodi" :class="expanded ? 'mr-3' : 'mr-0'" class="w-5 h-5 object-contain shrink-0 transition-all duration-300 group-hover:scale-110">
-                <span x-show="expanded" class="text-sm whitespace-nowrap">Pilih Prodi</span>
-            </a>
+                <p x-show="expanded" class="text-slate-300 text-xs uppercase font-semibold px-3 mb-3">
+                    Menu Utama
+                </p>
 
-            {{-- Mulai Ujian --}}
-            <a href="#" 
-               data-spa-link
-               :class="expanded ? 'justify-start px-4' : 'justify-center px-0'" 
-               class="spa-nav-link flex items-center py-3 rounded-xl transition-all duration-300 ease-in-out group text-white/80 hover:bg-white/20 hover:text-white font-medium">
-                <img src="{{ asset('assets/images/draw-pen.png') }}" alt="Mulai Ujian" :class="expanded ? 'mr-3' : 'mr-0'" class="w-5 h-5 object-contain shrink-0 transition-all duration-300 group-hover:scale-110">
-                <span x-show="expanded" class="text-sm whitespace-nowrap">Mulai Ujian</span>
-            </a>
+                <div class="space-y-2">
 
-            {{-- Cetak Kartu --}}
-            <a href="#" 
-               data-spa-link
-               :class="expanded ? 'justify-start px-4' : 'justify-center px-0'" 
-               class="spa-nav-link flex items-center py-3 rounded-xl transition-all duration-300 ease-in-out group text-white/80 hover:bg-white/20 hover:text-white font-medium">
-                <img src="{{ asset('assets/images/credit-card.png') }}" alt="Cetak Kartu" :class="expanded ? 'mr-3' : 'mr-0'" class="w-5 h-5 object-contain shrink-0 transition-all duration-300 group-hover:scale-110">
-                <span x-show="expanded" class="text-sm whitespace-nowrap">Cetak Kartu</span>
-            </a>
+                    {{-- DASHBOARD --}}
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+                        {{ request()->routeIs('home')
+    ? 'bg-white/15 text-white border border-white/10'
+    : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
 
-        </nav>
+                        {{-- HOME ICON --}}
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-        <div :class="expanded ? 'p-6' : 'p-3'" class="mb-2 mt-auto transition-all duration-300">
-            <form method="POST" action="{{ route('logout') }}">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" />
+                        </svg>
+
+                        <span x-show="expanded" class="text-sm font-medium">
+                            Dashboard
+                        </span>
+                    </a>
+
+                    {{-- PRODI --}}
+                    <a href="{{ route('prodi.pilih') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+                        {{ request()->routeIs('prodi')
+    ? 'bg-white/15 text-white border border-white/10'
+    : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+
+                        {{-- BUILDING ICON --}}
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 21h16M7 21V7l5-4 5 4v14M9 10h.01M15 10h.01M9 14h.01M15 14h.01" />
+                        </svg>
+
+                        <span x-show="expanded" class="text-sm font-medium">
+                            Pilih Prodi
+                        </span>
+                    </a>
+
+                </div>
+            </div>
+
+            {{-- UJIAN --}}
+            <div>
+
+                <p x-show="expanded" class="text-slate-300 text-xs uppercase font-semibold px-3 mb-3">
+                    Ujian
+                </p>
+
+                <div class="space-y-2">
+
+                    {{-- MULAI TES --}}
+                    <a href="{{ route('portal.ujian') }}"
+                        class="flex items-center gap-3 rounded-xl px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold transition">
+
+                        {{-- PENCIL ICON --}}
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5h2m-1 0v14m-7-7h14" />
+                        </svg>
+
+                        <span x-show="expanded" class="text-sm">
+                            Mulai Tes
+                        </span>
+                    </a>
+
+                    {{-- CETAK KARTU --}}
+                    <a href="{{ route('cetak.identitas') }}"
+                        class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-200 hover:bg-white/10 hover:text-white transition">
+
+                        {{-- PRINTER ICON --}}
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 9V4h12v5M6 18h12v2H6v-2zm-2-8h16a2 2 0 012 2v4H2v-4a2 2 0 012-2z" />
+                        </svg>
+
+                        <span x-show="expanded" class="text-sm">
+                            Cetak Kartu
+                        </span>
+                    </a>
+
+                    {{-- HELP DESK --}}
+                    <a href="{{ route('helpdesk') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+    {{ request()->routeIs('helpdesk')
+    ? 'bg-white/15 text-white border border-white/10'
+    : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+
+                        {{-- SUPPORT ICON --}}
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18.364 5.636A9 9 0 105.636 18.364M9 10h.01M15 10h.01M9 15h6" />
+                        </svg>
+
+                        <span x-show="expanded" class="text-sm font-medium">
+                            Help Desk
+                        </span>
+                    </a>
+
+                    {{-- PROFILE --}}
+<a href="{{ route('profile.edit') }}"
+    class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+    {{ request()->routeIs('profile.edit')
+        ? 'bg-white/15 text-white border border-white/10'
+        : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+
+    {{-- USER ICON --}}
+    <svg class="w-5 h-5 shrink-0"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24">
+
+        <path stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+
+    <span x-show="expanded"
+        class="text-sm font-medium">
+        Profile
+    </span>
+</a>
+
+                </div>
+            </div>
+
+        </div>
+
+        {{-- USER --}}
+        <div class="border-t border-white/10 p-4">
+
+            <div class="flex items-center gap-3">
+
+                <img src="{{ asset('assets/images/photo.png') }}" class="w-10 h-10 rounded-lg object-cover">
+
+                <div x-show="expanded" class="overflow-hidden">
+                    <p class="text-white text-sm font-semibold truncate">
+                        {{ Auth::user()->name }}
+                    </p>
+
+                    <p class="text-slate-300 text-xs">
+                        Peserta CBT
+                    </p>
+                </div>
+            </div>
+
+            {{-- LOGOUT --}}
+            <form method="POST" action="{{ route('logout') }}" class="mt-4">
                 @csrf
-                <button type="submit" :class="expanded ? 'px-4' : 'px-0'" title="Sign Out" class="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold py-3 rounded-xl shadow-md transition duration-300 flex justify-center items-center">
-                    <svg x-show="!expanded" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-3 rounded-xl bg-red-500 hover:bg-red-600 text-white py-3 transition">
+
+                    {{-- LOGOUT ICON --}}
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H9m8 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v1" />
                     </svg>
-                    <span x-show="expanded" class="whitespace-nowrap">Sign Out</span>
+
+                    <span x-show="expanded" class="text-sm font-medium">
+                        Logout
+                    </span>
                 </button>
             </form>
-        </div>
 
+        </div>
     </div>
 </aside>
 
-{{-- =============================================
-     SPA NAVIGATION SCRIPT (UPDATED)
-     ============================================= --}}
+@include('sweetalert::alert')
+
 <style>
-    /* Progress bar di atas halaman */
-    #spa-progress {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 3px;
-        width: 0%;
-        background: linear-gradient(90deg, #F59E0B, #fff, #F59E0B);
-        background-size: 200% 100%;
-        z-index: 9999;
-        transition: width 0.3s ease;
-        animation: spaProgressShimmer 1s linear infinite;
-        border-radius: 0 2px 2px 0;
+    .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
 
-    @keyframes spaProgressShimmer {
-        0%   { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-    }
-
-    /* Animasi konten masuk & keluar */
-    @keyframes spaFadeSlideIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes spaFadeSlideOut {
-        from { opacity: 1; transform: translateY(0); }
-        to   { opacity: 0; transform: translateY(-8px); }
-    }
-
-    .spa-content-enter {
-        animation: spaFadeSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    }
-    .spa-content-leave {
-        animation: spaFadeSlideOut 0.2s ease forwards;
-    }
-
-    /* Active link highlight */
-    .spa-nav-link.spa-active {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
 </style>
-
-{{-- Progress bar element --}}
-<div id="spa-progress"></div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const CONTENT_ID    = 'spa-content';   
-    const NAV_LINK_ATTR = 'data-spa-link'; 
-    const ACTIVE_CLASS  = 'spa-active';    
-
-    const progressBar = document.getElementById('spa-progress');
-    let isNavigating = false;
-
-    // ---- Progress Bar Logic ----
-    function showProgress() {
-        progressBar.style.display = 'block';
-        progressBar.style.width   = '0%';
-        requestAnimationFrame(() => {
-            progressBar.style.width = '70%';
-        });
-    }
-
-    function finishProgress() {
-        progressBar.style.width = '100%';
-        setTimeout(() => {
-            progressBar.style.display = 'none';
-            progressBar.style.width   = '0%';
-        }, 300);
-    }
-
-    // ---- Update Active Link ----
-    function updateActiveLinks(url) {
-        document.querySelectorAll(`[${NAV_LINK_ATTR}]`).forEach(link => {
-            const href = link.getAttribute('href');
-            // Pastikan tidak me-match link kosong atau '#'
-            if (href && href !== '#' && url.split('?')[0] === href.split('?')[0]) {
-                link.classList.add(ACTIVE_CLASS);
-            } else {
-                link.classList.remove(ACTIVE_CLASS);
-            }
-        });
-    }
-
-    // ---- Fungsi Utama Navigasi SPA ----
-    async function navigateTo(url, pushState = true) {
-        if (isNavigating || url === window.location.href || url === '#') return;
-        isNavigating = true;
-
-        showProgress();
-        const contentEl = document.getElementById(CONTENT_ID);
-
-        // 1. Animasi keluar konten lama
-        if (contentEl) {
-            contentEl.classList.add('spa-content-leave');
-            await new Promise(r => setTimeout(r, 200)); // Tunggu animasi selesai
-        }
-
-        try {
-            // 2. Fetch halaman baru
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-SPA-Request': 'true',
-                },
-            });
-
-            if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-
-            const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            const newContent = doc.getElementById(CONTENT_ID);
-            const newTitle = doc.title;
-
-            if (newContent && contentEl) {
-                // 3. Swap Konten
-                contentEl.innerHTML = newContent.innerHTML;
-
-                // 4. Update Judul & History Browser
-                document.title = newTitle;
-                if (pushState) {
-                    history.pushState({ url }, newTitle, url);
-                }
-
-                // 5. Re-init Alpine.js (Kompatibilitas Laravel Breeze / Alpine v3)
-                if (window.Alpine) {
-                    Alpine.initTree(contentEl); 
-                }
-
-                // 6. Jalankan Animasi Masuk
-                contentEl.classList.remove('spa-content-leave');
-                contentEl.classList.add('spa-content-enter');
-                contentEl.addEventListener('animationend', () => {
-                    contentEl.classList.remove('spa-content-enter');
-                }, { once: true });
-
-                updateActiveLinks(url);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                // Fallback jika tidak ada id="spa-content" di halaman tujuan
-                window.location.href = url;
-            }
-        } catch (err) {
-            console.error('[SPA Error]:', err);
-            window.location.href = url; // Fallback hard-reload jika error
-        } finally {
-            finishProgress();
-            isNavigating = false;
-        }
-    }
-
-    // ---- Event Listener untuk klik link ----
-    document.addEventListener('click', function (e) {
-        const link = e.target.closest(`[${NAV_LINK_ATTR}]`);
-        if (!link) return;
-
-        const href = link.getAttribute('href');
-        if (!href || href === '#') return;
-
-        // Izinkan open in new tab (Ctrl+Click / Cmd+Click)
-        if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-
-        e.preventDefault();
-        navigateTo(href);
-    });
-
-    // ---- Handle tombol Back/Forward Browser ----
-    window.addEventListener('popstate', function (e) {
-        if (e.state && e.state.url) {
-            navigateTo(e.state.url, false);
-        } else {
-            window.location.reload();
-        }
-    });
-
-    // Inisialisasi awal
-    history.replaceState({ url: window.location.href }, document.title, window.location.href);
-    updateActiveLinks(window.location.href);
-});
-</script>

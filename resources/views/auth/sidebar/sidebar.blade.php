@@ -1,14 +1,18 @@
-<div class="hidden lg:flex lg:w-1/2 bg-gradient-to-b from-[#0F65B6] to-[#E0F0FF] relative overflow-hidden flex-col justify-center items-center p-12">
+<div class="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-center items-center p-12 bg-cover bg-center bg-no-repeat" 
+     style="background-image: url('assets/images/bg.png');">
+
+    <!-- Overlay agar foto agak gelap dan teks tetap terbaca -->
+    <div class="absolute inset-0 bg-[#0F65B6]/40"></div>
 
     <img src="{{ asset('assets/images/corner.png') }}" 
          alt="Wave Decoration Top Right" 
-         class="absolute top-0 right-0 w-64 opacity-80 pointer-events-none transform rotate-90">
+         class="absolute top-0 right-0 w-64 opacity-80 pointer-events-none transform rotate-90 z-10">
 
     <img src="{{ asset('assets/images/corner.png') }}" 
          alt="Wave Decoration Bottom Left" 
-         class="absolute bottom-0 left-0 w-80 opacity-80 pointer-events-none transform -rotate-90">
+         class="absolute bottom-0 left-0 w-80 opacity-80 pointer-events-none transform -rotate-90 z-10">
 
-    <div class="relative z-10 flex flex-col items-center">
+    <div class="relative z-20 flex flex-col items-center">
         <div class="mb-6">
             <img src="{{ asset('assets/images/pnc-logo.png') }}" 
                  alt="Logo CBT Mandiri PNC" 
