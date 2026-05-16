@@ -14,8 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('kode_bayar')->unique();
 
-            $table->string('virtual_account');
-            $table->
+            $table->string('virtual_account')->nullable();
             $table->string('qr_string')->nullable();
 
             $table->foreignId('user_id')

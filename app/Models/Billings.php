@@ -16,9 +16,9 @@ class Billings extends Model
         'isPay'
     ];
 
-    public function checkBillings($id){
-        $bill = $this->find($id)->first();
-        return $bill->isPay;
+    public static function checkBillings($user_id){
+        $bill = Billings::where('user_id' , $user_id)->first();
+        return $bill ?  $bill->isPay : null;
     }
 
     public static function createKodeBayar(){

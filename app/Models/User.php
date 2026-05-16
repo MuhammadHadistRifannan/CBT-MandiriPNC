@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name' , 'email', 'password'])]
+#[Fillable(['name' , 'email', 'password'  ,'foto'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -32,15 +32,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function pilihan(){
-        return $this->belongsTo(PilihanProdi::class);
+        return $this->hasOne(PilihanProdi::class , 'user_id');
     }
 
-    public function pilihan_1(){
-        return $this->belongsTo(PilihanProdi::class , 'pilihan_1');
-    }
-    public function pilihan_2(){
-        return $this->belongsTo(PilihanProdi::class , 'pilihan_2');
+    public function peserta(){
+        return $this->hasOne(Peserta::class , 'user_id');
     }
 
-
+    public function dokumen(){
+        return $this->hasOne(Dokumen::class , 'user_id');
+    }
 }

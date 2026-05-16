@@ -56,7 +56,7 @@
         <div
             class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-2 py-2">
 
-            <img src="{{ asset('assets/images/photo.png') }}"
+            <img src="{{ auth()->user()->foto ? asset('storage/'.auth()->user()->foto) : asset('assets/images/photo.png')}}"
                 class="w-10 h-10 rounded-lg object-cover">
 
             <div class="hidden sm:block leading-tight">

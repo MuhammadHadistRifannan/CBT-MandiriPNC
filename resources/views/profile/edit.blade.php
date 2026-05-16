@@ -28,7 +28,7 @@
 
                     <div class="relative shrink-0 m-4">
 
-                        <img src="{{ asset('assets/images/photo.png') }}"
+                        <img src="{{ auth()->user()->foto ? asset('storage/'.auth()->user()->foto) : asset('assets/images/photo.png') }}"
                             class="w-24 h-24 lg:w-28 lg:h-28 rounded-3xl object-cover border-4 border-slate-100 shadow-sm">
 
                             

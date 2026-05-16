@@ -111,7 +111,7 @@
                     Ujian
                 </p>
 
-                <div class="space-y-2">
+                <div class="space-y-4">
 
                     {{-- MULAI TES --}}
                     <a href="{{ route('portal.ujian') }}"
@@ -128,65 +128,110 @@
                             Mulai Tes
                         </span>
                     </a>
+                    <div class="mb-2">
 
-                    {{-- CETAK KARTU --}}
-                    <a href="{{ route('cetak.identitas') }}"
-                        class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-200 hover:bg-white/10 hover:text-white transition">
+                        <p x-show="expanded" class="text-slate-300 text-xs uppercase font-semibold px-3 mb-4 mt-2">
+                            Dokumen
+                        </p>
 
-                        {{-- PRINTER ICON --}}
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {{-- CETAK KARTU --}}
+                        {{-- NAV : UPLOAD DOKUMEN --}}
+<a href="{{ route('dokumen.index') }}"
+    class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-200 
+    hover:bg-white/10 hover:text-white transition">
 
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 9V4h12v5M6 18h12v2H6v-2zm-2-8h16a2 2 0 012 2v4H2v-4a2 2 0 012-2z" />
-                        </svg>
+    {{-- ICON FILE --}}
+    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                        <span x-show="expanded" class="text-sm">
-                            Cetak Kartu
-                        </span>
-                    </a>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 16V4a2 2 0 012-2h6l4 4v10a2 2 0 01-2 2H7a2 2 0 01-2-2zm8-10v4h4m-7 5l2 2 4-4" />
+    </svg>
 
-                    {{-- HELP DESK --}}
-                    <a href="{{ route('helpdesk') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+    {{-- TEXT --}}
+    <div x-show="expanded" class="flex flex-col min-w-0">
+
+        <span class="text-sm font-medium leading-none">
+            Upload Dokumen
+        </span>
+
+        <span class="text-xs text-slate-400 truncate mt-1">
+            Persyaratan Ujian Mandiri
+        </span>
+
+    </div>
+
+    {{-- STATUS --}}
+    <div x-show="expanded" class="ml-auto">
+
+        @if($dokumenLengkap ?? false)
+            <span
+                class="bg-green-500/20 text-green-300 text-[10px] px-2 py-1 rounded-full font-semibold">
+                Lengkap
+            </span>
+        @else
+            <span
+                class="bg-yellow-500/20 text-yellow-300 text-[10px] px-2 py-1 rounded-full font-semibold">
+                Pending
+            </span>
+        @endif
+
+    </div>
+
+</a>
+                        <a href="{{ route('cetak.identitas') }}"
+                            class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-200 hover:bg-white/10 hover:text-white transition">
+
+                            {{-- PRINTER ICON --}}
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 9V4h12v5M6 18h12v2H6v-2zm-2-8h16a2 2 0 012 2v4H2v-4a2 2 0 012-2z" />
+                            </svg>
+
+                            <span x-show="expanded" class="text-sm">
+                                Cetak Kartu
+                            </span>
+                        </a>
+
+                        
+
+                        {{-- PROFILE --}}
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+    {{ request()->routeIs('profile.edit')
+    ? 'bg-white/15 text-white border border-white/10'
+    : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
+
+                            {{-- USER ICON --}}
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+
+                            <span x-show="expanded" class="text-sm font-medium">
+                                Profile
+                            </span>
+                        </a>
+
+
+                        {{-- HELP DESK --}}
+                        <a href="{{ route('helpdesk') }}" class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
     {{ request()->routeIs('helpdesk')
     ? 'bg-white/15 text-white border border-white/10'
     : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
 
-                        {{-- SUPPORT ICON --}}
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {{-- SUPPORT ICON --}}
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M18.364 5.636A9 9 0 105.636 18.364M9 10h.01M15 10h.01M9 15h6" />
-                        </svg>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18.364 5.636A9 9 0 105.636 18.364M9 10h.01M15 10h.01M9 15h6" />
+                            </svg>
 
-                        <span x-show="expanded" class="text-sm font-medium">
-                            Help Desk
-                        </span>
-                    </a>
-
-                    {{-- PROFILE --}}
-<a href="{{ route('profile.edit') }}"
-    class="flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
-    {{ request()->routeIs('profile.edit')
-        ? 'bg-white/15 text-white border border-white/10'
-        : 'text-slate-200 hover:bg-white/10 hover:text-white' }}">
-
-    {{-- USER ICON --}}
-    <svg class="w-5 h-5 shrink-0"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24">
-
-        <path stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-
-    <span x-show="expanded"
-        class="text-sm font-medium">
-        Profile
-    </span>
-</a>
+                            <span x-show="expanded" class="text-sm font-medium">
+                                Help Desk
+                            </span>
+                        </a>
+                    </div>
 
                 </div>
             </div>
@@ -198,7 +243,8 @@
 
             <div class="flex items-center gap-3">
 
-                <img src="{{ asset('assets/images/photo.png') }}" class="w-10 h-10 rounded-lg object-cover">
+                <img src="{{ auth()->user()->foto ? asset('storage/' . auth()->user()->foto) : asset('assets/images/photo.png') }}"
+                    class="w-10 h-10 rounded-lg object-cover">
 
                 <div x-show="expanded" class="overflow-hidden">
                     <p class="text-white text-sm font-semibold truncate">

@@ -136,7 +136,7 @@
     $snapToken = session('snap_token');
 
     // BUTTON STATE
-    $canPay = $snapToken && !$isPay;
+    $canPay = $billing && !$isPay;
 @endphp
 
 <div class="bg-green-50 border border-green-200 text-green-700 rounded-3xl p-5">
@@ -574,8 +574,21 @@
 data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
 
 <script>
-function payNow() {
+async function payNow() {
     let snapToken = "{{ session('snap_token') }}";
+    if (!snapToken){
+            const response = await fetch('/payment/snap', {
+                method:"POST",
+                headers: {
+                    "Content-Type" : "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+            }); 
+
+            const data = await response.json();
+            snapToken = data.snap_token;
+
+    }
 
     if (!snapToken) {
         alert("Snap token tidak ditemukan");

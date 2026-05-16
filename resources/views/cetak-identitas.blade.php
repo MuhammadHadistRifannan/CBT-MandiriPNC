@@ -200,7 +200,8 @@
                                     </span>
                                     pilihan program studi.
 
-                                    Silakan selesaikan tahap pemilihan prodi terlebih dahulu.
+                                    Silakan selesaikan tahap pemilihan prodi terlebih dahulu dan <b> selesaikan
+                                        pembayaran.</b>
                                 </p>
                             </div>
                             <div class="flex justify-center p-4">
@@ -213,220 +214,280 @@
                     </div>
                     <div class="w-full max-w-4xl">
                 @elseif($status == 'valid')
-                                    <div class="px-3 sm:px-5 md:px-0">
+                                        <div class="px-3 sm:px-5 md:px-0">
 
-                                        <h2
-                                            class="text-xl sm:text-2xl font-extrabold text-black mb-6 sm:mb-8 no-print text-center md:text-left">
-                                            Preview Kartu Ujian
-                                        </h2>
+                                            <h2
+                                                class="text-xl sm:text-2xl font-extrabold text-black mb-6 sm:mb-8 no-print text-center md:text-left">
+                                                Preview Kartu Ujian
+                                            </h2>
 
-                                        <div id="printable-card" class="relative w-full max-w-2xl mx-auto
-                        bg-[#173A5E]
-                        rounded-[1.8rem] sm:rounded-[2.5rem]
-                        p-4 sm:p-8 lg:p-10
-                        shadow-2xl overflow-hidden">
+                                            <div id="printable-card" class="relative w-full max-w-2xl mx-auto
+                                                                    bg-[#173A5E]
+                                                                    rounded-[1.8rem] sm:rounded-[2.5rem]
+                                                                    p-4 sm:p-8 lg:p-10
+                                                                    shadow-2xl overflow-hidden">
 
-                                            {{-- BACKGROUND EFFECT --}}
-                                            <div
-                                                class="absolute -bottom-10 -right-10 w-44 sm:w-64 h-44 sm:h-64 bg-white/5 rounded-full blur-3xl">
-                                            </div>
-
-                                            <div
-                                                class="absolute top-0 left-0 w-28 sm:w-40 h-28 sm:h-40 bg-blue-400/10 rounded-full blur-3xl">
-                                            </div>
-
-                                            {{-- HEADER --}}
-                                            <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4
-                            mb-6 sm:mb-8 relative z-10 border-b border-white/20 pb-5 sm:pb-6 text-center sm:text-left">
-
-                                                <div class="bg-white/10 p-2 sm:p-3 rounded-xl backdrop-blur-sm shadow-lg shrink-0">
-
-                                                    <img src="{{ asset('assets/images/pnc-logo.png') }}" alt="Logo PNC"
-                                                        class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
+                                                {{-- BACKGROUND EFFECT --}}
+                                                <div
+                                                    class="absolute -bottom-10 -right-10 w-44 sm:w-64 h-44 sm:h-64 bg-white/5 rounded-full blur-3xl">
                                                 </div>
 
-                                                <div>
+                                                <div
+                                                    class="absolute top-0 left-0 w-28 sm:w-40 h-28 sm:h-40 bg-blue-400/10 rounded-full blur-3xl">
+                                                </div>
 
-                                                    <h3
-                                                        class="text-white font-black text-sm sm:text-lg md:text-xl tracking-wide uppercase leading-tight">
+                                                {{-- HEADER --}}
+                                                <div
+                                                    class="flex flex-col sm:flex-row items-center sm:items-center gap-4
+                                                                        mb-6 sm:mb-8 relative z-10 border-b border-white/20 pb-5 sm:pb-6 text-center sm:text-left">
 
-                                                        Seleksi Mandiri CBT
-                                                    </h3>
+                                                    <div class="bg-white/10 p-2 sm:p-3 rounded-xl backdrop-blur-sm shadow-lg shrink-0">
 
-                                                    <p class="text-slate-200 text-xs sm:text-sm mt-1">
-                                                        Politeknik Negeri Cilacap
+                                                        <img src="{{ asset('assets/images/pnc-logo.png') }}" alt="Logo PNC"
+                                                            class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
+                                                    </div>
+
+                                                    <div>
+
+                                                        <h3
+                                                            class="text-white font-black text-sm sm:text-lg md:text-xl tracking-wide uppercase leading-tight">
+
+                                                            Seleksi Mandiri CBT
+                                                        </h3>
+
+                                                        <p class="text-slate-200 text-xs sm:text-sm mt-1">
+                                                            Politeknik Negeri Cilacap
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {{-- CONTENT --}}
+                                                <div class="flex flex-col items-center md:items-start md:flex-row
+                                                                        gap-5 sm:gap-8 relative z-10">
+
+                                                    {{-- FOTO --}}
+                                                    <div class="shrink-0">
+
+                                                        <div class="w-28 h-36 sm:w-40 sm:h-52
+                                                                                bg-gray-200 rounded-2xl overflow-hidden
+                                                                                border-[3px] border-white shadow-2xl">
+
+                                                            <img id="previewFoto" src="{{ auth()->user()->foto ? asset('storage/' .auth()->user()->foto) :  asset('storage/avatar-kartu.jpeg') }}"
+                                                                alt="Foto Peserta" class="w-full h-full object-cover">
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- DATA --}}
+                                                    <div class="flex-grow text-white w-full">
+
+                                                        {{-- NAMA --}}
+                                                        <div class="space-y-1 mb-4 sm:mb-5 text-center md:text-left">
+
+                                                            <p
+                                                                class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white font-bold opacity-70">
+
+                                                                Nama Peserta
+                                                            </p>
+
+                                                            <p
+                                                                class="text-base sm:text-xl md:text-2xl font-black leading-tight break-words">
+
+                                                                {{ auth()->user()->name }}
+                                                            </p>
+                                                        </div>
+
+                                                        {{-- NOMOR --}}
+                                                        <div class="space-y-1 mb-5 sm:mb-6 text-center md:text-left">
+
+                                                            <p
+                                                                class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white font-bold opacity-70">
+
+                                                                Nomor Peserta
+                                                            </p>
+
+                                                            <p class="text-base sm:text-xl md:text-2xl font-black leading-tight">
+
+                                                                {{ auth()->user()->peserta->nomor_peserta }}
+                                                            </p>
+                                                        </div>
+
+                                                        {{-- PRODI --}}
+                                                        <div>
+
+                                                            <p
+                                                                class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white font-bold opacity-70 mb-3 text-center md:text-left">
+
+                                                                Program Studi Pilihan
+                                                            </p>
+
+                                                            <div class="space-y-3">
+
+                                                                {{-- PRODI 1 --}}
+                                                                <div
+                                                                    class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 sm:px-4 py-3 flex items-start gap-3 shadow-lg">
+
+                                                                    <div
+                                                                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0F65B6]
+                                                                                            flex items-center justify-center
+                                                                                            text-[10px] sm:text-xs font-black text-white shrink-0 mt-0.5">
+
+                                                                        1
+                                                                    </div>
+
+                                                                    <div class="min-w-0">
+
+                                                                        <p
+                                                                            class="text-xs sm:text-sm font-bold text-white leading-tight break-words">
+
+                                                                            {{auth()->user()->pilihan->pilihan_prodi_1?->tingkat}} -
+                                                                            {{ auth()->user()->pilihan->pilihan_prodi_1?->nama_prodi }}
+                                                                        </p>
+
+                                                                        <p class="text-[10px] sm:text-xs text-slate-200 mt-1">
+
+                                                                            {{ auth()->user()->pilihan->pilihan_prodi_1?->jurusan }}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {{-- PRODI 2 --}}
+                                                                <div
+                                                                    class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 sm:px-4 py-3 flex items-start gap-3 shadow-lg">
+
+                                                                    <div
+                                                                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white text-[#173A5E]
+                                                                                            flex items-center justify-center
+                                                                                            text-[10px] sm:text-xs font-black shrink-0 mt-0.5">
+
+                                                                        2
+                                                                    </div>
+
+                                                                    <div class="min-w-0">
+
+                                                                        <p
+                                                                            class="text-xs sm:text-sm font-bold text-white leading-tight break-words">
+
+                                                                            {{auth()->user()->pilihan->pilihan_prodi_2?->tingkat}} -
+                                                                            {{ auth()->user()->pilihan->pilihan_prodi_2?->nama_prodi }}
+                                                                        </p>
+
+                                                                        <p class="text-[10px] sm:text-xs text-slate-200 mt-1">
+
+                                                                            {{ auth()->user()->pilihan->pilihan_prodi_2?->jurusan }}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+
+                                                        {{-- QR --}}
+                                                        <div class="mt-6 sm:mt-8 flex justify-center md:justify-start">
+
+                                                            <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-2xl">
+
+                                                                <img src="{{ asset('storage/qr-kartu.png') }}" alt="QR Verification"
+                                                                    class="w-16 h-16 sm:w-24 sm:h-24">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {{-- FOOTER --}}
+                                                <div class="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-white/20 text-center relative z-10">
+
+                                                    <p class="text-white font-black text-xs sm:text-lg md:text-xl tracking-[0.2em]">
+
+                                                        Tahun Akademik 2025/2026
+                                                    </p>
+
+                                                    <p class="text-slate-300 text-[9px] sm:text-xs mt-2 tracking-wide">
+
+                                                        Kartu Peserta Resmi Ujian Mandiri CBT PNC
                                                     </p>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <p class="text-center text-gray-800 italic font-bold text-lg mt-10 mb-10 no-print">
+                                            Foto dibawah akan digunakan menjadi kartu ujian 
+                                        </p>
 
-                                            {{-- CONTENT --}}
-                                            <div class="flex flex-col items-center md:items-start md:flex-row
-                            gap-5 sm:gap-8 relative z-10">
+                                        <div class="flex flex-col sm:flex-row items-end justify-center gap-6 no-print">
+
+                                            <form action="{{ route('cetak.upload-foto') }}" method="POST" enctype="multipart/form-data">
+
+                                                @csrf
+
+                                                {{-- INPUT FILE --}}
+                                                <input type="file" id="fotoInput" name="foto" accept="image/*" class="hidden">
 
                                                 {{-- FOTO --}}
-                                                <div class="shrink-0">
+                                                <div
+                                                    class="w-40 h-52 bg-gray-200 rounded-3xl overflow-hidden border-4 border-white shadow-xl">
 
-                                                    <div class="w-28 h-36 sm:w-40 sm:h-52
-                                    bg-gray-200 rounded-2xl overflow-hidden
-                                    border-[3px] border-white shadow-2xl">
-
-                                                        <img src="{{ asset('storage/avatar-kartu.jpeg') }}" alt="Foto Peserta"
-                                                            class="w-full h-full object-cover">
-                                                    </div>
+                                                    <img id="previewFoto" src="{{ auth()->user()->foto
+                            ? asset('storage/' . auth()->user()->foto)
+                            : asset('storage/avatar-kartu.jpeg') }}" alt="Foto Peserta" class="w-full h-full object-cover">
                                                 </div>
+                                                
+                                                {{-- BUTTON --}}
+                                                <div class="mt-5 flex justify-center">
+                                                    <button type="button" onclick="document.getElementById('fotoInput').click()"
+                                                        class="bg-[#D1D5DB] hover:bg-[#9CA3AF] text-gray-800 font-black py-4 px-12 rounded-2xl transition duration-300 shadow-md text-lg">
 
-                                                {{-- DATA --}}
-                                                <div class="flex-grow text-white w-full">
-
-                                                    {{-- NAMA --}}
-                                                    <div class="space-y-1 mb-4 sm:mb-5 text-center md:text-left">
-
-                                                        <p
-                                                            class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white font-bold opacity-70">
-
-                                                            Nama Peserta
-                                                        </p>
-
-                                                        <p
-                                                            class="text-base sm:text-xl md:text-2xl font-black leading-tight break-words">
-
-                                                            Muhammad Hadist Rifannan
-                                                        </p>
-                                                    </div>
-
-                                                    {{-- NOMOR --}}
-                                                    <div class="space-y-1 mb-5 sm:mb-6 text-center md:text-left">
-
-                                                        <p
-                                                            class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white font-bold opacity-70">
-
-                                                            Nomor Peserta
-                                                        </p>
-
-                                                        <p class="text-base sm:text-xl md:text-2xl font-black leading-tight">
-
-                                                            2604000129
-                                                        </p>
-                                                    </div>
-
-                                                    {{-- PRODI --}}
-                                                    <div>
-
-                                                        <p
-                                                            class="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white font-bold opacity-70 mb-3 text-center md:text-left">
-
-                                                            Program Studi Pilihan
-                                                        </p>
-
-                                                        <div class="space-y-3">
-
-                                                            {{-- PRODI 1 --}}
-                                                            <div
-                                                                class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 sm:px-4 py-3 flex items-start gap-3 shadow-lg">
-
-                                                                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#0F65B6]
-                                                flex items-center justify-center
-                                                text-[10px] sm:text-xs font-black text-white shrink-0 mt-0.5">
-
-                                                                    1
-                                                                </div>
-
-                                                                <div class="min-w-0">
-
-                                                                    <p
-                                                                        class="text-xs sm:text-sm font-bold text-white leading-tight break-words">
-
-                                                                        D4 Teknologi Rekayasa Multimedia
-                                                                    </p>
-
-                                                                    <p class="text-[10px] sm:text-xs text-slate-200 mt-1">
-
-                                                                        Jurusan Komputer dan Bisnis
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-
-                                                            {{-- PRODI 2 --}}
-                                                            <div
-                                                                class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 sm:px-4 py-3 flex items-start gap-3 shadow-lg">
-
-                                                                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white text-[#173A5E]
-                                                flex items-center justify-center
-                                                text-[10px] sm:text-xs font-black shrink-0 mt-0.5">
-
-                                                                    2
-                                                                </div>
-
-                                                                <div class="min-w-0">
-
-                                                                    <p
-                                                                        class="text-xs sm:text-sm font-bold text-white leading-tight break-words">
-
-                                                                        D3 Teknik Informatika
-                                                                    </p>
-
-                                                                    <p class="text-[10px] sm:text-xs text-slate-200 mt-1">
-
-                                                                        Jurusan Komputer dan Bisnis
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-
-                                                    {{-- QR --}}
-                                                    <div class="mt-6 sm:mt-8 flex justify-center md:justify-start">
-
-                                                        <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-2xl">
-
-                                                            <img src="{{ asset('storage/qr-kartu.png') }}" alt="QR Verification"
-                                                                class="w-16 h-16 sm:w-24 sm:h-24">
-                                                        </div>
-                                                    </div>
+                                                        Ubah Foto
+                                                    </button>
                                                 </div>
-                                            </div>
+                                            </form>
+                                            <button onclick="window.print()" class="h-16 px-8 sm:px-12
+                        bg-[#F39C12] hover:bg-[#D68910]
+                        text-white font-black
+                        rounded-2xl transition duration-300
+                        shadow-lg text-base sm:text-lg
+                        flex items-center justify-center gap-3">
 
-                                            {{-- FOOTER --}}
-                                            <div class="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-white/20 text-center relative z-10">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
-                                                <p class="text-white font-black text-xs sm:text-lg md:text-xl tracking-[0.2em]">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                                                    </path>
+                                                </svg>
 
-                                                    Tahun Akademik 2025/2026
-                                                </p>
+                                                Cetak Kartu
+                                            </button>
 
-                                                <p class="text-slate-300 text-[9px] sm:text-xs mt-2 tracking-wide">
-
-                                                    Kartu Peserta Resmi Ujian Mandiri CBT PNC
-                                                </p>
-                                            </div>
+                                            
                                         </div>
                                     </div>
-                                    <p class="text-center text-gray-800 italic font-bold text-lg mt-10 mb-10 no-print">
-                                        Gunakan kartu ini untuk verifikasi peserta ke pengawas
-                                    </p>
-
-                                    <div class="flex flex-wrap justify-center gap-6 no-print">
-                                        <button
-                                            class="bg-[#D1D5DB] hover:bg-[#9CA3AF] text-gray-800 font-black py-4 px-12 rounded-2xl transition duration-300 shadow-md text-lg">
-                                            Ubah foto
-                                        </button>
-                                        <button onclick="window.print()"
-                                            class="bg-[#F39C12] hover:bg-[#D68910] text-white font-black py-4 px-12 rounded-2xl transition duration-300 shadow-lg text-lg flex items-center gap-3">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                                                </path>
-                                            </svg>
-                                            Cetak Kartu
-                                        </button>
-                                    </div>
-                                </div>
                     @endif
 
             </main>
         </div>
     </div>
+
+                <script>
+                const fotoInput = document.getElementById('fotoInput');
+                const previewFoto = document.getElementById('previewFoto');
+
+                fotoInput.addEventListener('change', function (e) {
+
+                    const file = e.target.files[0];
+
+                    if (!file) return;
+
+                    // preview langsung
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        previewFoto.src = event.target.result;
+                    }
+
+                    reader.readAsDataURL(file);
+
+                    // auto submit upload
+                    fotoInput.closest('form').submit();
+                });
+            </script>
 
 </body>
 

@@ -12,6 +12,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 class ProdiController extends Controller
 {
     //
+
     public function simpan(PilihanServices $pilService , BillingService $billService , Request $request){
         $result = $pilService->save_permanent($request , $billService);
 
