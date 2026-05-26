@@ -571,13 +571,13 @@
     </div>
 
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
-data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 
 <script>
 async function payNow() {
     let snapToken = "{{ session('snap_token') }}";
     if (!snapToken){
-            const response = await fetch('/payment/snap', {
+            const response = await fetch(@js(route('payment.snap')), {
                 method:"POST",
                 headers: {
                     "Content-Type" : "application/json",
@@ -598,24 +598,7 @@ async function payNow() {
     snap.pay(snapToken, {
         onSuccess: function(result) {
             console.log("success", result);
-             fetch("/payment/success", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            body: JSON.stringify({
-                order_id: result.order_id,
-                transaction_status: result.transaction_status
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
             window.location.reload();
-            
-        });
-
-
         },
         onPending: function(result) {
             console.log("pending", result);

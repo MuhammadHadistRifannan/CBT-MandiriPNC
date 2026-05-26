@@ -3,44 +3,44 @@
 namespace App\Http\Controllers\Users\Query;
 
 use App\Http\Controllers\Controller;
-use App\Models\Billings;
-use App\Services\PilihanServices;
+use App\Services\CetakIdentitasService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CetakIdentitasController extends Controller
 {
-    //
-    public function index(PilihanServices $service)
+    public function index(Request $request, CetakIdentitasService $service)
     {
-        $isSavePermanent = $service->check_savePermanently();
-        $isPay = Billings::checkBillings(auth()->user()->id);
+        $cetakAccess = $service->accessFor($request->user());
+        $status = $cetakAccess['canPrint'] ? 'valid' : 'invalid';
 
-        $status = $isSavePermanent && $isPay ? 'valid' : 'invalid';
-
-        return view('cetak-identitas', compact('status'));
+        return view('cetak-identitas', compact('status', 'cetakAccess'));
     }
 
-    public function uploadFoto(Request $request)
+    public function uploadFoto(Request $request, CetakIdentitasService $service)
     {
+        if (! $service->accessFor($request->user())['canPrint']) {
+            return redirect()
+                ->route('cetak.identitas')
+                ->with('error', 'Cetak identitas masih terkunci. Selesaikan pembayaran dan validasi dokumen terlebih dahulu.');
+        }
+
         $request->validate([
-            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $user = auth()->user();
+        $user = $request->user();
 
-        // hapus foto lama
         if ($user->foto && Storage::disk('public')->exists($user->foto)) {
             Storage::disk('public')->delete($user->foto);
         }
 
-        // upload baru
         $path = $request->file('foto')->store('foto-peserta', 'public');
 
         $user->update([
             'foto' => $path
         ]);
 
-        return redirect()->back()->with('success' , 'Foto berhasil diperbarui');
+        return redirect()->back()->with('success', 'Foto berhasil diperbarui');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\DokumenStatus;
 use App\Models\Dokumen;
 use Illuminate\Http\Request;
 
@@ -29,25 +30,25 @@ class DokumenService
             'foto' => [
                 $dokumen?->foto ? 'nullable' : 'required',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:2048'
+                'max:2048',
             ],
 
             'identitas' => [
                 $dokumen?->kartu_identitas ? 'nullable' : 'required',
                 'mimes:jpg,jpeg,png,pdf',
-                'max:2048'
+                'max:2048',
             ],
 
             'surat_keterangan' => [
                 'nullable',
                 'mimes:pdf',
-                'max:2048'
+                'max:2048',
             ],
 
             'ijazah' => [
                 'nullable',
                 'mimes:pdf',
-                'max:2048'
+                'max:2048',
             ],
         ]);
 
@@ -70,13 +71,17 @@ class DokumenService
 
         Dokumen::updateOrCreate(
             [
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ],
             [
                 'foto' => $foto,
                 'kartu_identitas' => $identitas,
                 'suket' => $surat,
                 'ijazah' => $ijazah,
+                'status' => DokumenStatus::Pending,
+                'reviewed_by' => null,
+                'reviewed_at' => null,
+                'rejection_note' => null,
             ]
         );
 

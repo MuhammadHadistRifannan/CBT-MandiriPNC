@@ -192,22 +192,36 @@
                                     Akses Terkunci
                                 </h2>
 
-                                <p class="text-lg font-bold text-gray-500 leading-relaxed max-w-md mx-auto">
-
-                                    Anda belum melakukan
-                                    <span class="text-red-600 underline">
-                                        Simpan Permanen
-                                    </span>
-                                    pilihan program studi.
-
-                                    Silakan selesaikan tahap pemilihan prodi terlebih dahulu dan <b> selesaikan
-                                        pembayaran.</b>
+                                <p class="text-lg font-bold text-gray-500 leading-relaxed max-w-xl mx-auto">
+                                    Kartu identitas hanya dapat dicetak setelah pembayaran berhasil dan dokumen lengkap telah divalidasi admin.
                                 </p>
                             </div>
-                            <div class="flex justify-center p-4">
+                            <div class="mx-auto mt-8 max-w-xl space-y-3">
+                                @foreach ($cetakAccess['requirements'] as $requirement)
+                                    <div class="flex items-center gap-3 rounded-2xl border px-4 py-3 {{ $requirement['completed'] ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-600' }}">
+                                        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full {{ $requirement['completed'] ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500' }}">
+                                            @if ($requirement['completed'])
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            @else
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v5m0 3h.01" />
+                                                </svg>
+                                            @endif
+                                        </span>
+                                        <span class="text-sm font-semibold">{{ $requirement['label'] }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="mt-8 flex flex-col justify-center gap-3 p-4 sm:flex-row">
                                 <a href="{{ route('prodi.pilih') }}"
                                     class="inline-flex items-center justify-center bg-gray-900 text-white font-black px-10 py-4 rounded-2xl hover:bg-black transition shadow-lg">
-                                    Kembali ke Pilih Prodi
+                                    Cek Pembayaran
+                                </a>
+                                <a href="{{ route('dokumen.index') }}"
+                                    class="inline-flex items-center justify-center border border-[#0F4C81] bg-white text-[#0F4C81] font-black px-10 py-4 rounded-2xl hover:bg-blue-50 transition">
+                                    Kelola Dokumen
                                 </a>
                             </div>
                         </div>

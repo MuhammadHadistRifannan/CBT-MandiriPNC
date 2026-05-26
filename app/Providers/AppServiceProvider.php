@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Dokumen;
+use App\Services\CetakIdentitasService;
 use Illuminate\Support\ServiceProvider;
 use View;
 
@@ -21,31 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
-
-        View::composer('*', function ($view) {
-
-            $dokumenLengkap = false;
+        View::composer('layouts.dashboard.sidebar', function ($view) {
+            $cetakAccess = null;
 
             if (auth()->check()) {
-
-                $dokumen = Dokumen::where(
-                    'user_id',
-                    auth()->id()
-                )->first();
-
-                if ($dokumen){
-                    $dokumenLengkap = $dokumen &&
-                        $dokumen->ijazah ||
-                        $dokumen->suket;
-                }
-
+                $cetakAccess = app(CetakIdentitasService::class)->accessFor(auth()->user());
             }
 
-            $view->with(
-                'dokumenLengkap',
-                $dokumenLengkap
-            );
+            $view->with('cetakAccess', $cetakAccess);
         });
     }
 }

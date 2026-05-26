@@ -163,21 +163,32 @@
     {{-- STATUS --}}
     <div x-show="expanded" class="ml-auto">
 
-        @if($dokumenLengkap ?? false)
+        @if($cetakAccess['isDocumentVerified'] ?? false)
             <span
                 class="bg-green-500/20 text-green-300 text-[10px] px-2 py-1 rounded-full font-semibold">
-                Lengkap
+                Verified
+            </span>
+        @elseif(($cetakAccess['documentStatus'] ?? null) === \App\Enums\DokumenStatus::Rejected)
+            <span
+                class="bg-red-500/20 text-red-300 text-[10px] px-2 py-1 rounded-full font-semibold">
+                Ditolak
+            </span>
+        @elseif($cetakAccess['isDocumentComplete'] ?? false)
+            <span
+                class="bg-yellow-500/20 text-yellow-300 text-[10px] px-2 py-1 rounded-full font-semibold">
+                Review
             </span>
         @else
             <span
                 class="bg-yellow-500/20 text-yellow-300 text-[10px] px-2 py-1 rounded-full font-semibold">
-                Pending
+                Belum Lengkap
             </span>
         @endif
 
     </div>
 
 </a>
+                        @if($cetakAccess['canPrint'] ?? false)
                         <a href="{{ route('cetak.identitas') }}"
                             class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-200 hover:bg-white/10 hover:text-white transition">
 
@@ -191,7 +202,27 @@
                             <span x-show="expanded" class="text-sm">
                                 Cetak Kartu
                             </span>
+                            <span x-show="expanded" class="ml-auto rounded-full bg-emerald-500/20 px-2 py-1 text-[10px] font-semibold text-emerald-300">
+                                Siap
+                            </span>
                         </a>
+                        @else
+                        <div aria-disabled="true" title="Lunasi pembayaran dan tunggu validasi dokumen untuk mencetak kartu."
+                            class="flex cursor-not-allowed items-center gap-3 rounded-xl px-4 py-3 text-slate-400 opacity-80">
+
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V8a4 4 0 00-8 0v3m-2 0h12a1 1 0 011 1v7a1 1 0 01-1 1H6a1 1 0 01-1-1v-7a1 1 0 011-1z" />
+                            </svg>
+
+                            <span x-show="expanded" class="text-sm">
+                                Cetak Kartu
+                            </span>
+                            <span x-show="expanded" class="ml-auto rounded-full bg-slate-500/20 px-2 py-1 text-[10px] font-semibold text-slate-300">
+                                Terkunci
+                            </span>
+                        </div>
+                        @endif
 
                         
 
