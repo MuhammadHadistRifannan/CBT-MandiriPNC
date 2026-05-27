@@ -50,4 +50,19 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Billings::class, 'user_id');
     }
+
+    public function ujians()
+    {
+        return $this->hasMany(Ujian::class, 'user_id');
+    }
+
+    public function ujian()
+    {
+        return $this->hasOne(Ujian::class, 'user_id');
+    }
+
+    public function ujianActivityLogs()
+    {
+        return $this->hasMany(UjianActivityLog::class, 'user_id');
+    }
 }

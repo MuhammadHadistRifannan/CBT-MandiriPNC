@@ -400,10 +400,13 @@
 
                                                             <div class="bg-white p-2 sm:p-3 rounded-2xl shadow-2xl">
 
-                                                                <img src="{{ asset('storage/qr-kartu.png') }}" alt="QR Verification"
-                                                                    class="w-16 h-16 sm:w-24 sm:h-24">
+                                                                <canvas id="exam-qr" aria-label="QR Check-in Ujian"
+                                                                    class="h-16 w-16 sm:h-24 sm:w-24"></canvas>
                                                             </div>
                                                         </div>
+                                                        <p class="mt-3 text-center text-[10px] font-semibold tracking-wide text-slate-200 md:text-left">
+                                                            {{ $cetakAccess['examCode'] }}
+                                                        </p>
                                                     </div>
                                                 </div>
 
@@ -483,25 +486,36 @@
                 const fotoInput = document.getElementById('fotoInput');
                 const previewFoto = document.getElementById('previewFoto');
 
-                fotoInput.addEventListener('change', function (e) {
+                if (fotoInput) {
+                    fotoInput.addEventListener('change', function (e) {
 
-                    const file = e.target.files[0];
+                        const file = e.target.files[0];
 
-                    if (!file) return;
+                        if (!file) return;
 
-                    // preview langsung
-                    const reader = new FileReader();
+                        const reader = new FileReader();
 
-                    reader.onload = function (event) {
-                        previewFoto.src = event.target.result;
-                    }
+                        reader.onload = function (event) {
+                            previewFoto.src = event.target.result;
+                        }
 
-                    reader.readAsDataURL(file);
+                        reader.readAsDataURL(file);
 
-                    // auto submit upload
-                    fotoInput.closest('form').submit();
-                });
+                        fotoInput.closest('form').submit();
+                    });
+                }
             </script>
+            @if ($status === 'valid')
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        window.QRCode.toCanvas(
+                            document.getElementById('exam-qr'),
+                            @js($cetakAccess['qrPayload']),
+                            { width: 160, margin: 1, errorCorrectionLevel: 'M' }
+                        );
+                    });
+                </script>
+            @endif
 
 </body>
 

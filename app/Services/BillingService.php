@@ -6,6 +6,7 @@ use App\Enums\BillingStatus;
 use App\Models\Billings;
 use App\Services\Payment\BankBNI;
 use App\Services\Payment\PaymentService;
+use Illuminate\Validation\ValidationException;
 
 class BillingService
 {
@@ -28,15 +29,38 @@ class BillingService
         return $billing;
     }
 
-    public function create_payment($user_id)
+    public function create_payment(int $userId): array
     {
-        $paymentService = new PaymentService;
-        $bill = Billings::where('user_id', $user_id)->first();
+        $bill = Billings::query()->where('user_id', $userId)->first();
 
         if (! $bill) {
-            return null;
+            throw ValidationException::withMessages([
+                'payment' => 'Data pembayaran tidak ditemukan.',
+            ]);
         }
 
+        if ($bill->transaction_status === BillingStatus::Settlement || $bill->isPay) {
+            throw ValidationException::withMessages([
+                'payment' => 'Pembayaran Anda sudah diterima.',
+            ]);
+        }
+
+        if ($bill->transaction_status === BillingStatus::Expire) {
+            throw ValidationException::withMessages([
+                'payment' => 'Sesi pembayaran telah kedaluwarsa.',
+            ]);
+        }
+
+        if ($bill->snap_token) {
+            return [
+                'snap_token' => $bill->snap_token,
+                'order_id' => $bill->kode_bayar,
+                'payment_type' => $bill->payment_type,
+                'gross_amount' => $bill->gross_amount,
+            ];
+        }
+
+        $paymentService = new PaymentService;
         $data = $paymentService->make_payment(new BankBNI, $bill->kode_bayar);
 
         $bill->update([

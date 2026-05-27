@@ -4,13 +4,20 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\DokumenController as AdminDokumenController;
 use App\Http\Controllers\Admin\ProdiController as AdminProdiController;
 use App\Http\Controllers\Admin\SoalCbtController;
+use App\Http\Controllers\Pengawas\ActivityLogController as PengawasActivityLogController;
+use App\Http\Controllers\Pengawas\BroadcastController as PengawasBroadcastController;
+use App\Http\Controllers\Pengawas\DashboardController as PengawasDashboardController;
+use App\Http\Controllers\Pengawas\CheckInController as PengawasCheckInController;
 use App\Http\Controllers\Users\Command\ProfileController;
+use App\Http\Controllers\Users\Command\UjianActivityController;
 use App\Http\Controllers\Users\PaymentController;
+use App\Http\Controllers\Users\Query\BroadcastMessageController;
 use App\Http\Controllers\Users\Query\CetakIdentitasController;
 use App\Http\Controllers\Users\Query\DokumenController;
 use App\Http\Controllers\Users\Query\ProdiController;
 use App\Http\Controllers\Users\Query\UjianController;
 use App\Http\Middleware\RoleBasedMiddleware;
+use App\UserRole;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,7 +33,7 @@ Route::get('/home', fn () => view('home'))->name('home');
 Route::post('/payment/notification', [PaymentController::class, 'notification'])
     ->name('payment.notification');
 
-Route::middleware(['auth', RoleBasedMiddleware::class.':user'])->group(function () {
+Route::middleware(['auth', RoleBasedMiddleware::class.':'.UserRole::User->value])->group(function () {
     Route::get('/prodi', [ProdiController::class, 'index'])->name('prodi.pilih');
     Route::post('/prodi', [App\Http\Controllers\Users\Command\ProdiController::class, 'simpan'])->name('prodi.simpan');
 
@@ -45,9 +52,13 @@ Route::middleware(['auth', RoleBasedMiddleware::class.':user'])->group(function 
     Route::post('/upload-foto', [CetakIdentitasController::class, 'uploadFoto'])->name('cetak.upload-foto');
 
     Route::post('/payment/snap', [PaymentController::class, 'generateSnap'])->name('payment.snap');
+    Route::post('/payment/sync', [PaymentController::class, 'sync'])->name('payment.sync');
+    Route::get('/broadcast-messages', [BroadcastMessageController::class, 'index'])->name('participant.broadcast.index');
+    Route::post('/broadcast-messages/{broadcastMessage}/dismiss', [BroadcastMessageController::class, 'dismiss'])->name('participant.broadcast.dismiss');
+    Route::post('/ujian/activity', [UjianActivityController::class, 'store'])->name('participant.activity.store');
 });
 
-Route::prefix('admin')->middleware(['auth', RoleBasedMiddleware::class.':admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth', RoleBasedMiddleware::class.':'.UserRole::Admin->value])->group(function () {
     Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('dokumen', [AdminDokumenController::class, 'index'])->name('admin.dokumen');
     Route::get('dokumen/{dokumen}', [AdminDokumenController::class, 'show'])->name('admin.dokumen.show');
@@ -65,6 +76,18 @@ Route::prefix('admin')->middleware(['auth', RoleBasedMiddleware::class.':admin']
     Route::put('bank-soal/{soal}', [SoalCbtController::class, 'update'])->name('admin.soal.update');
     Route::patch('bank-soal/{soal}/release', [SoalCbtController::class, 'release'])->name('admin.soal.release');
     Route::delete('bank-soal/{soal}', [SoalCbtController::class, 'destroy'])->name('admin.soal.destroy');
+});
+
+Route::prefix('pengawas')->middleware(['auth', RoleBasedMiddleware::class.':'.UserRole::Pengawas->value])->group(function () {
+    Route::get('dashboard', [PengawasDashboardController::class, 'index'])->name('pengawas.dashboard');
+    Route::get('dashboard/data', [PengawasDashboardController::class, 'data'])->name('pengawas.dashboard.data');
+    Route::get('check-in', [PengawasCheckInController::class, 'index'])->name('pengawas.check-in');
+    Route::post('check-in/lookup', [PengawasCheckInController::class, 'lookup'])->name('pengawas.check-in.lookup');
+    Route::post('check-in/{ujian}/confirm', [PengawasCheckInController::class, 'confirm'])->name('pengawas.check-in.confirm');
+    Route::get('broadcast', [PengawasBroadcastController::class, 'index'])->name('pengawas.broadcast');
+    Route::post('broadcast', [PengawasBroadcastController::class, 'store'])->name('pengawas.broadcast.store');
+    Route::get('aktivitas', [PengawasActivityLogController::class, 'index'])->name('pengawas.activities');
+    Route::get('aktivitas/data', [PengawasActivityLogController::class, 'data'])->name('pengawas.activities.data');
 });
 
 require __DIR__.'/auth.php';

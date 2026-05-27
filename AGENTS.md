@@ -38,6 +38,18 @@ Backend menggunakan:
 * Enum untuk role/status
 * Middleware role-based access
 
+Constraints:
+- Laravel 12
+- Use Service Pattern
+- Use Enum for status
+- No business logic in controller
+
+Deliver:
+- Controller
+- Service class
+- Route
+- Validation
+
 ==================================================
 ROLE SYSTEM
 ===========

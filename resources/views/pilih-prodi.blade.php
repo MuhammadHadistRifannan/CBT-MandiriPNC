@@ -574,20 +574,79 @@
 data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 
 <script>
+async function syncPaymentStatus(waitForSettlement = false) {
+    const attempts = waitForSettlement ? 5 : 1;
+
+    for (let attempt = 0; attempt < attempts; attempt++) {
+        const response = await fetch(@js(route('payment.sync')), {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": @js(csrf_token())
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message ?? "Status pembayaran gagal diperbarui.");
+        }
+
+        if (!waitForSettlement || data.is_paid) {
+            return data;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    return null;
+}
+
+@if(($data['isSave'] ?? false) && ($canPay ?? false) && ($billing ?? null)?->snap_token)
+document.addEventListener("DOMContentLoaded", async function () {
+    try {
+        const payment = await syncPaymentStatus();
+
+        if (payment?.is_paid) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error("Sinkronisasi pembayaran belum tersedia.", error);
+    }
+});
+@endif
+
 async function payNow() {
-    let snapToken = "{{ session('snap_token') }}";
-    if (!snapToken){
+    let snapToken = @js(session('snap_token'));
+
+    if (!snapToken) {
+        try {
             const response = await fetch(@js(route('payment.snap')), {
-                method:"POST",
+                method: "POST",
                 headers: {
-                    "Content-Type" : "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-            }); 
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": @js(csrf_token())
+                }
+            });
+
+            const contentType = response.headers.get("content-type") ?? "";
+            if (!contentType.includes("application/json")) {
+                throw new Error("Server tidak mengembalikan respons JSON pembayaran.");
+            }
 
             const data = await response.json();
-            snapToken = data.snap_token;
 
+            if (!response.ok) {
+                throw new Error(data.message ?? "Token pembayaran gagal dibuat.");
+            }
+
+            snapToken = data.snap_token;
+        } catch (error) {
+            alert(error.message ?? "Token pembayaran gagal dibuat.");
+            return;
+        }
     }
 
     if (!snapToken) {
@@ -596,12 +655,25 @@ async function payNow() {
     }
 
     snap.pay(snapToken, {
-        onSuccess: function(result) {
+        onSuccess: async function(result) {
             console.log("success", result);
-            window.location.reload();
+            try {
+                await syncPaymentStatus(true);
+            } catch (error) {
+                alert(error.message ?? "Status pembayaran gagal diperbarui.");
+            } finally {
+                window.location.reload();
+            }
         },
-        onPending: function(result) {
+        onPending: async function(result) {
             console.log("pending", result);
+            try {
+                await syncPaymentStatus();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                window.location.reload();
+            }
         },
         onError: function(result) {
             console.log("error", result);

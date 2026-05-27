@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Enums\BillingStatus;
 use App\Enums\DokumenStatus;
+use App\Enums\UjianStatus;
 use App\Models\Billings;
 use App\Models\Dokumen;
 use App\Models\Peserta;
 use App\Models\PilihanProdi;
 use App\Models\Prodi;
 use App\Models\User;
+use App\Models\Ujian;
 use App\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -104,6 +106,11 @@ class CetakIdentitasAccessTest extends TestCase
         Peserta::create([
             'user_id' => $user->id,
             'nomor_peserta' => 'CBT-PRINT-001',
+        ]);
+        Ujian::create([
+            'user_id' => $user->id,
+            'kode_ujian' => 'UJIAN-PRINT-'.$user->id,
+            'status' => UjianStatus::NotCheckedIn,
         ]);
 
         return $user;

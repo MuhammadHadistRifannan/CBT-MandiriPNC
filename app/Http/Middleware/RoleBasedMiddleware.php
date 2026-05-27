@@ -16,29 +16,18 @@ class RoleBasedMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // belum login
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
         $user = auth()->user();
 
-        // role sesuai → lanjut
-        if (in_array($user->role, $roles)) {
+        if (in_array($user->role, $roles, true)) {
             return $next($request);
         }
 
-        // redirect sesuai role user
-        return match ($user->role) {
+        $role = UserRole::tryFrom($user->role);
 
-            'admin' =>
-            redirect()->route('admin.dashboard'),
-
-            'pengawas' =>
-            redirect()->route('pengawas.dashboard'),
-
-            default =>
-            redirect()->route('dashboard'),
-        };
+        return redirect()->route($role?->dashboardRouteName() ?? 'dashboard');
     }
 }

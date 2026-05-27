@@ -11,7 +11,86 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased text-gray-900 bg-[#F8FAFC]"> <div x-data="{ sidebarExpanded: true }" class="flex h-screen overflow-hidden">
+<body class="font-sans antialiased text-gray-900 bg-[#F8FAFC]">
+    <div x-data="{
+        sidebarExpanded: true,
+        mobileOpen: false,
+        activityTrackingEnabled: @js($activityTrackingEnabled),
+        activityIdleTimer: null,
+        activityIdleRecorded: false,
+        broadcastMessages: [],
+        async loadBroadcastMessages() {
+            try {
+                const response = await fetch(@js(route('participant.broadcast.index')), {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (response.ok) {
+                    this.broadcastMessages = (await response.json()).messages;
+                }
+            } catch (error) {
+                console.error('Broadcast belum dapat diperbarui.', error);
+            }
+        },
+        async dismissBroadcast(message) {
+            const response = await fetch(message.dismiss_url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                }
+            });
+            if (response.ok) {
+                this.broadcastMessages = this.broadcastMessages.filter((item) => item.id !== message.id);
+            }
+        },
+        async recordActivity(eventType) {
+            if (!this.activityTrackingEnabled) return;
+
+            try {
+                await fetch(@js(route('participant.activity.store')), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                    },
+                    body: JSON.stringify({ event_type: eventType })
+                });
+            } catch (error) {
+                console.error('Aktivitas tidak dapat disimpan.', error);
+            }
+        },
+        resetIdleTimer() {
+            if (!this.activityTrackingEnabled) return;
+
+            clearTimeout(this.activityIdleTimer);
+            this.activityIdleRecorded = false;
+            this.activityIdleTimer = setTimeout(() => {
+                this.activityIdleRecorded = true;
+                this.recordActivity('idle');
+            }, 60000);
+        },
+        initActivityTracking() {
+            if (!this.activityTrackingEnabled) return;
+
+            this.recordActivity('refresh');
+            document.addEventListener('visibilitychange', () => {
+                this.recordActivity(document.hidden ? 'tab_hidden' : 'tab_visible');
+            });
+            window.addEventListener('blur', () => this.recordActivity('window_blur'));
+            window.addEventListener('focus', () => this.recordActivity('window_focus'));
+            ['mousemove', 'keydown', 'click', 'touchstart'].forEach((eventName) => {
+                window.addEventListener(eventName, () => this.resetIdleTimer(), { passive: true });
+            });
+            this.resetIdleTimer();
+        },
+        init() {
+            this.loadBroadcastMessages();
+            this.broadcastPoller = setInterval(() => this.loadBroadcastMessages(), 5000);
+            this.initActivityTracking();
+        }
+    }" class="flex h-screen overflow-hidden">
 
         @include('layouts.dashboard.sidebar')
 
@@ -114,6 +193,36 @@
     </div>
 </header>
 
+            <section x-show="broadcastMessages.length > 0" x-cloak
+                class="border-b border-amber-200 bg-amber-50 px-4 py-3 lg:px-8">
+                <div class="mx-auto max-w-5xl space-y-3">
+                    <template x-for="message in broadcastMessages" :key="message.id">
+                        <article class="flex items-start gap-3 rounded-2xl border border-amber-200 bg-white px-4 py-3 shadow-sm">
+                            <span class="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5l-7 7 7 7M4 12h14a2 2 0 002-2V7" />
+                                </svg>
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-x-2 text-xs font-semibold text-amber-700">
+                                    <span>Pesan Pengawas</span>
+                                    <span class="text-slate-400">|</span>
+                                    <span class="text-slate-500" x-text="message.sender + ' - ' + message.sent_at + ' WIB'"></span>
+                                </div>
+                                <p class="mt-1 text-sm font-medium leading-relaxed text-slate-700" x-text="message.message"></p>
+                            </div>
+                            <button type="button" @click="dismissBroadcast(message)" aria-label="Tutup pesan"
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </article>
+                    </template>
+                </div>
+            </section>
+
             <main class="flex-1 overflow-x-hidden overflow-y-auto p-8 sm:p-12 relative z-0 flex items-center justify-center">
 
                 <div class="w-full max-w-4xl text-center">
@@ -137,6 +246,37 @@
                                     </p>
                                 </div>
                                 <a href="{{ route('prodi.pilih') }}" class="inline-block bg-gray-900 text-white font-black px-10 py-4 rounded-2xl hover:bg-black transition shadow-lg">Kembali ke Pilih Prodi</a>
+                            </div>
+
+                        @elseif($status == 'blocked')
+                            <div class="relative z-10 space-y-8">
+                                <div class="w-28 h-28 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                                    <svg class="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M18.364 5.636l-12.728 12.728m0-12.728l12.728 12.728M12 22a10 10 0 110-20 10 10 0 010 20z" />
+                                    </svg>
+                                </div>
+                                <div class="space-y-4">
+                                    <h2 class="text-4xl font-black text-gray-900 uppercase tracking-tighter">Akses Diblokir</h2>
+                                    <p class="text-lg font-bold text-gray-500 leading-relaxed max-w-md mx-auto">
+                                        Sesi ujian Anda diblokir. Silakan hubungi pengawas ruang ujian.
+                                    </p>
+                                </div>
+                            </div>
+
+                        @elseif($status == 'submitted')
+                            <div class="relative z-10 space-y-8">
+                                <div class="w-28 h-28 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                                    <svg class="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="space-y-4">
+                                    <h2 class="text-4xl font-black text-gray-900 uppercase tracking-tighter">Ujian Selesai</h2>
+                                    <p class="text-lg font-bold text-gray-500 leading-relaxed max-w-md mx-auto">
+                                        Jawaban Anda telah disubmit dan sesi ujian tidak dapat dimulai kembali.
+                                    </p>
+                                </div>
                             </div>
 
                         {{-- Kondisi 2: COUNTDOWN --}}

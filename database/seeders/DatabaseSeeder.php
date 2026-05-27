@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\SoalCbt;
-use App\Models\SpecialUser;
 use App\Models\User;
+use App\UserRole;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,9 +17,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(UserSeeder::class);
 
-        // User::factory()->count(100)->create();
-        SoalCbt::factory(10)->create();
+        $admin = User::query()
+            ->where('role', UserRole::Admin->value)
+            ->where('email', 'admin@pnc.ac.id')
+            ->firstOrFail();
+
+        if (SoalCbt::query()->doesntExist()) {
+            SoalCbt::factory(10)->create([
+                'created_by' => $admin->id,
+            ]);
+        }
     }
 }

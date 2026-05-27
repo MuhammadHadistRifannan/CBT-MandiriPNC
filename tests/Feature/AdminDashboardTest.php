@@ -10,6 +10,7 @@ use App\Models\Peserta;
 use App\Models\PilihanProdi;
 use App\Models\Prodi;
 use App\Models\User;
+use App\Models\Ujian;
 use App\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -108,6 +109,8 @@ class AdminDashboardTest extends TestCase
 
         $this->postJson(route('payment.notification'), $payload)
             ->assertOk();
+        $this->postJson(route('payment.notification'), $payload)
+            ->assertOk();
 
         $this->assertDatabaseHas('billings', [
             'kode_bayar' => 'PAY-CALLBACK',
@@ -117,6 +120,8 @@ class AdminDashboardTest extends TestCase
             'isPay' => true,
         ]);
         $this->assertDatabaseHas('peserta', ['user_id' => $user->id]);
+        $this->assertDatabaseHas('ujian', ['user_id' => $user->id]);
+        $this->assertSame(1, Ujian::query()->where('user_id', $user->id)->count());
     }
 
     private function createProdi(string $name): Prodi

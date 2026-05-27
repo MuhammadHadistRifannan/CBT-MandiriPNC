@@ -8,9 +8,11 @@ use App\Models\User;
 
 class CetakIdentitasService
 {
+    public function __construct(private readonly UjianQrService $qrService) {}
+
     public function accessFor(User $user): array
     {
-        $user->loadMissing(['pilihan', 'billing', 'dokumen']);
+        $user->loadMissing(['pilihan', 'billing', 'dokumen', 'ujian']);
 
         $dokumen = $user->dokumen;
         $hasPermanentChoice = $user->pilihan !== null;
@@ -22,13 +24,17 @@ class CetakIdentitasService
             && (filled($dokumen->suket) || filled($dokumen->ijazah));
         $isDocumentVerified = $isDocumentComplete
             && $dokumen->status === DokumenStatus::Verified;
+        $hasExamSession = $user->ujian !== null;
 
         return [
-            'canPrint' => $hasPermanentChoice && $isPaid && $isDocumentVerified,
+            'canPrint' => $hasPermanentChoice && $isPaid && $isDocumentVerified && $hasExamSession,
             'hasPermanentChoice' => $hasPermanentChoice,
             'isPaid' => $isPaid,
             'isDocumentComplete' => $isDocumentComplete,
             'isDocumentVerified' => $isDocumentVerified,
+            'hasExamSession' => $hasExamSession,
+            'qrPayload' => $hasExamSession ? $this->qrService->payload($user->ujian) : null,
+            'examCode' => $user->ujian?->kode_ujian,
             'documentStatus' => $dokumen?->status,
             'requirements' => [
                 [
@@ -46,6 +52,10 @@ class CetakIdentitasService
                 [
                     'label' => 'Dokumen sudah divalidasi admin',
                     'completed' => $isDocumentVerified,
+                ],
+                [
+                    'label' => 'Sesi dan kode ujian sudah diterbitkan',
+                    'completed' => $hasExamSession,
                 ],
             ],
         ];
