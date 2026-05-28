@@ -62,6 +62,9 @@ class UjianActivityService
 
     public function feed(array $filters = []): array
     {
+        $page = max(1, (int) ($filters['page'] ?? 1));
+        $perPage = min(50, max(5, (int) ($filters['per_page'] ?? 10)));
+
         $query = UjianActivityLog::query()
             ->with(['user.peserta', 'ujian'])
             ->when($filters['user_id'] ?? null, fn ($builder, $userId) => $builder->where('user_id', $userId))
@@ -74,9 +77,10 @@ class UjianActivityService
             'refreshes' => (clone $query)->where('event_type', UjianActivityType::Refresh->value)->count(),
         ];
 
-        $logs = $query->latest('occurred_at')
-            ->limit(100)
-            ->get()
+        $paginator = $query->latest('occurred_at')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $logs = $paginator->getCollection()
             ->map(fn (UjianActivityLog $log): array => [
                 'id' => $log->id,
                 'participant' => $log->user?->name ?? '-',
@@ -88,6 +92,18 @@ class UjianActivityService
             ])
             ->all();
 
-        return compact('stats', 'logs');
+        return [
+            'stats' => $stats,
+            'logs' => $logs,
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+                'has_more_pages' => $paginator->hasMorePages(),
+            ],
+        ];
     }
 }

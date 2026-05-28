@@ -233,6 +233,18 @@
                         <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50"></div>
                         <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-50"></div>
 
+                        @if(session('success'))
+                            <div class="relative z-10 mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-left text-sm font-bold text-emerald-700">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if($errors->has('ujian') || $errors->has('agree'))
+                            <div class="relative z-10 mb-8 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-left text-sm font-bold text-red-700">
+                                {{ $errors->first('ujian') ?: $errors->first('agree') }}
+                            </div>
+                        @endif
+
                         {{-- Kondisi 1: TERKUNCI --}}
                         @if($status == 'locked')
                             <div class="relative z-10 space-y-8">
@@ -336,22 +348,61 @@
 
                         {{-- Kondisi 4: SIAP MULAI --}}
                         @elseif($status == 'ready')
-                            <div class="relative z-10 space-y-10" x-data="{ showModal: false }">
+                            <div class="relative z-10 space-y-10" x-data="{ showModal: false, agreed: false }">
                                 <div class="space-y-4">
-                                    <h2 class="text-4xl font-black text-gray-900 uppercase">Sistem Siap</h2>
+                                    <h2 class="text-4xl font-black text-gray-900 uppercase">
+                                        {{ $access['examStarted'] ? 'Ujian Sedang Berjalan' : 'Sistem Siap' }}
+                                    </h2>
                                     <p class="text-lg font-bold text-gray-500 max-w-lg mx-auto">
-                                        Seluruh data telah diverifikasi. Pastikan Anda telah berdoa dan siap secara mental sebelum menekan tombol di bawah.
+                                        @if($access['examStarted'])
+                                            Timer ujian sudah berjalan berdasarkan waktu server. Tetap berada di halaman ujian dan ikuti arahan pengawas.
+                                        @else
+                                            Anda sudah check-in. Baca instruksi ujian, lalu tekan tombol mulai saat benar-benar siap.
+                                        @endif
                                     </p>
                                 </div>
+
+                                <div class="grid gap-4 text-left md:grid-cols-3">
+                                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                        <p class="text-xs font-black uppercase tracking-widest text-slate-400">Durasi</p>
+                                        <p class="mt-2 text-2xl font-black text-slate-800">{{ $access['durationMinutes'] }} menit</p>
+                                    </div>
+                                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                        <p class="text-xs font-black uppercase tracking-widest text-slate-400">Mulai</p>
+                                        <p class="mt-2 text-2xl font-black text-slate-800">
+                                            {{ $access['startedAt'] ? $access['startedAt']->format('H:i') . ' WIB' : 'Belum mulai' }}
+                                        </p>
+                                    </div>
+                                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                        <p class="text-xs font-black uppercase tracking-widest text-slate-400">Sisa Waktu</p>
+                                        <p class="mt-2 text-2xl font-black text-slate-800">{{ $access['remainingLabel'] ?? '--:--:--' }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-[2rem] border border-blue-100 bg-blue-50 p-6 text-left">
+                                    <h3 class="text-sm font-black uppercase tracking-widest text-[#0F4C81]">Instruksi Ujian</h3>
+                                    <ul class="mt-4 space-y-3 text-sm font-semibold leading-relaxed text-slate-600">
+                                        <li>1. Pastikan koneksi internet stabil dan perangkat tidak berpindah tab selama ujian.</li>
+                                        <li>2. Waktu mulai disimpan oleh server saat tombol mulai dikonfirmasi.</li>
+                                        <li>3. Jika terjadi kendala teknis, segera hubungi pengawas ruang.</li>
+                                    </ul>
+                                </div>
                                 
-                                <button @click="showModal = true"
-                                    class="group relative bg-[#0D9488] hover:bg-[#0F766E] text-white font-black py-6 px-20 rounded-[2rem] text-3xl shadow-[0_15px_30px_-10px_rgba(13,148,136,0.5)] transition-all duration-300 hover:-translate-y-2 active:translate-y-0">
-                                    Mulai Ujian
-                                </button>
+                                @if($access['canStart'])
+                                    <button @click="showModal = true"
+                                        class="group relative bg-[#0D9488] hover:bg-[#0F766E] text-white font-black py-6 px-20 rounded-[2rem] text-3xl shadow-[0_15px_30px_-10px_rgba(13,148,136,0.5)] transition-all duration-300 hover:-translate-y-2 active:translate-y-0">
+                                        Mulai Ujian
+                                    </button>
+                                @else
+                                    <a href="{{ route('ujian.show') }}" class="inline-flex items-center justify-center gap-3 rounded-[2rem] bg-emerald-600 px-10 py-5 text-lg font-black text-white shadow-lg transition hover:bg-emerald-700">
+                                        <span class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Lanjutkan Ujian
+                                    </a>
+                                @endif
 
                                 <p class="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center justify-center gap-2">
                                     <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
-                                    Sesi Ujian Aktif
+                                    {{ $access['examStarted'] ? 'Timer server aktif' : 'Menunggu konfirmasi mulai' }}
                                 </p>
 
                                 {{-- MODAL KONFIRMASI YANG DIPERMANIS --}}
@@ -364,23 +415,29 @@
                                             <h3 class="text-2xl font-black text-white relative z-10 uppercase tracking-tight">Konfirmasi Pelaksanaan</h3>
                                         </div>
                                         
-                                        <div class="p-10 space-y-8">
+                                        <form method="POST" action="{{ route('ujian.start') }}" class="p-10 space-y-8">
+                                            @csrf
+
                                             <div class="space-y-4 text-gray-700">
                                                 <p class="font-black text-lg italic leading-tight">"Saya menyatakan akan mengerjakan ujian ini dengan jujur dan menjunjung tinggi integritas akademik."</p>
+                                                <p class="text-sm font-bold text-slate-500">Setelah dikonfirmasi, status ujian berubah menjadi sedang ujian dan timer server mulai berjalan.</p>
                                             </div>
 
                                             <label class="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 cursor-pointer group hover:border-blue-300 transition-colors">
-                                                <input type="checkbox" id="confirm-check" class="mt-1 w-6 h-6 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 transition-all">
+                                                <input type="checkbox" name="agree" value="1" x-model="agreed" id="confirm-check" class="mt-1 w-6 h-6 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 transition-all">
                                                 <span class="text-sm font-bold text-gray-600 text-left leading-snug group-hover:text-black">
                                                     Saya menyetujui seluruh ketentuan dan bersedia didiskualifikasi jika terbukti curang.
                                                 </span>
                                             </label>
 
                                             <div class="grid grid-cols-2 gap-4">
-                                                <button @click="showModal = false" class="py-4 rounded-2xl font-black text-gray-400 hover:bg-gray-50 transition uppercase tracking-widest text-sm border-2 border-gray-100">Batalkan</button>
-                                                <button class="py-4 bg-[#1E78D0] hover:bg-[#165DA3] text-white rounded-2xl font-black shadow-lg transition-all uppercase tracking-widest text-sm transform hover:scale-105">Lanjutkan</button>
+                                                <button type="button" @click="showModal = false" class="py-4 rounded-2xl font-black text-gray-400 hover:bg-gray-50 transition uppercase tracking-widest text-sm border-2 border-gray-100">Batalkan</button>
+                                                <button type="submit" :disabled="!agreed"
+                                                    class="py-4 bg-[#1E78D0] hover:bg-[#165DA3] text-white rounded-2xl font-black shadow-lg transition-all uppercase tracking-widest text-sm transform hover:scale-105 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none disabled:hover:scale-100">
+                                                    Lanjutkan
+                                                </button>
                                             </div>
-                                        </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

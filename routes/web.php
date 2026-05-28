@@ -9,6 +9,7 @@ use App\Http\Controllers\Pengawas\BroadcastController as PengawasBroadcastContro
 use App\Http\Controllers\Pengawas\DashboardController as PengawasDashboardController;
 use App\Http\Controllers\Pengawas\CheckInController as PengawasCheckInController;
 use App\Http\Controllers\Users\Command\ProfileController;
+use App\Http\Controllers\Users\Command\UjianController as UserUjianCommandController;
 use App\Http\Controllers\Users\Command\UjianActivityController;
 use App\Http\Controllers\Users\PaymentController;
 use App\Http\Controllers\Users\Query\BroadcastMessageController;
@@ -44,6 +45,11 @@ Route::middleware(['auth', RoleBasedMiddleware::class.':'.UserRole::User->value]
     Route::get('/helpdesk', fn () => view('helpdesk'))->name('helpdesk');
 
     Route::get('/portal-ujian', [UjianController::class, 'index'])->name('portal.ujian');
+    Route::get('/ujian', [UjianController::class, 'show'])->name('ujian.show');
+    Route::get('/ujian/status', [UjianController::class, 'status'])->name('ujian.status');
+    Route::post('/ujian/start', [UserUjianCommandController::class, 'start'])->name('ujian.start');
+    Route::post('/ujian/answers', [UserUjianCommandController::class, 'saveAnswer'])->name('ujian.answers.store');
+    Route::post('/ujian/submit', [UserUjianCommandController::class, 'submit'])->name('ujian.submit');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

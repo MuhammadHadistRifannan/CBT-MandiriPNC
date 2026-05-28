@@ -17,6 +17,7 @@ class Ujian extends Model
         'kode_ujian',
         'status',
         'progress_percentage',
+        'nilai',
         'duration_minutes',
         'checked_in_at',
         'check_in_method',
@@ -32,6 +33,7 @@ class Ujian extends Model
         return [
             'status' => UjianStatus::class,
             'progress_percentage' => 'integer',
+            'nilai' => 'decimal:2',
             'duration_minutes' => 'integer',
             'checked_in_at' => 'datetime',
             'check_in_method' => UjianCheckInMethod::class,
@@ -54,5 +56,10 @@ class Ujian extends Model
     public function activityLogs(): HasMany
     {
         return $this->hasMany(UjianActivityLog::class);
+    }
+
+    public function answers(): HasMany
+    {
+        return $this->hasMany(UjianAnswer::class);
     }
 }

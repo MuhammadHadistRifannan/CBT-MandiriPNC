@@ -15,17 +15,22 @@
         loading: false,
         userId: @js((string) ($filters['user_id'] ?? '')),
         eventType: @js($filters['event_type'] ?? ''),
+        page: @js((int) ($filters['page'] ?? 1)),
+        perPage: @js((int) ($filters['per_page'] ?? 10)),
         stats: @js($stats),
         logs: @js($logs),
+        pagination: @js($pagination),
         init() {
             this.poller = setInterval(() => this.refresh(), 5000);
         },
-        async refresh() {
+        async refresh(page = this.page) {
             this.loading = true;
             try {
                 const url = new URL(@js(route('pengawas.activities.data')), window.location.origin);
                 if (this.userId) url.searchParams.set('user_id', this.userId);
                 if (this.eventType) url.searchParams.set('event_type', this.eventType);
+                url.searchParams.set('page', page);
+                url.searchParams.set('per_page', this.perPage);
                 const response = await fetch(url, {
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
@@ -33,9 +38,23 @@
                 const data = await response.json();
                 this.stats = data.stats;
                 this.logs = data.logs;
+                this.pagination = data.pagination;
+                this.page = data.pagination.current_page;
             } finally {
                 this.loading = false;
             }
+        },
+        resetAndRefresh() {
+            this.page = 1;
+            this.refresh(1);
+        },
+        nextPage() {
+            if (this.pagination.current_page >= this.pagination.last_page) return;
+            this.refresh(this.pagination.current_page + 1);
+        },
+        previousPage() {
+            if (this.pagination.current_page <= 1) return;
+            this.refresh(this.pagination.current_page - 1);
         }
     }" class="flex h-screen overflow-hidden">
         @include('layouts.pengawas.sidebar')
@@ -90,7 +109,7 @@
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto]">
                             <label>
                                 <span class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-500">Peserta</span>
-                                <select x-model="userId" @change="refresh()"
+                                <select x-model="userId" @change="resetAndRefresh()"
                                     class="w-full rounded-2xl border-slate-200 px-4 py-3 text-sm focus:border-[#0F4C81] focus:ring-[#0F4C81]">
                                     <option value="">Semua Peserta</option>
                                     @foreach ($participants as $participant)
@@ -100,7 +119,7 @@
                             </label>
                             <label>
                                 <span class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-500">Jenis Event</span>
-                                <select x-model="eventType" @change="refresh()"
+                                <select x-model="eventType" @change="resetAndRefresh()"
                                     class="w-full rounded-2xl border-slate-200 px-4 py-3 text-sm focus:border-[#0F4C81] focus:ring-[#0F4C81]">
                                     <option value="">Semua Event</option>
                                     @foreach ($eventTypes as $event)
@@ -118,7 +137,10 @@
                     <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
                         <div class="border-b border-slate-100 px-6 py-5">
                             <h3 class="text-lg font-black text-slate-800">Aktivitas Terbaru</h3>
-                            <p class="mt-1 text-sm text-slate-500">Maksimal 100 event terbaru sesuai filter.</p>
+                            <p class="mt-1 text-sm text-slate-500">
+                                Menampilkan <span x-text="pagination.from ?? 0"></span>-<span x-text="pagination.to ?? 0"></span>
+                                dari <span x-text="pagination.total"></span> event sesuai filter.
+                            </p>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full min-w-[720px]">
@@ -149,6 +171,30 @@
                                     </template>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="flex flex-col gap-3 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                            <p class="text-sm font-semibold text-slate-500">
+                                Halaman <span x-text="pagination.current_page"></span> dari <span x-text="pagination.last_page"></span>
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <label class="mr-2 hidden items-center gap-2 text-sm font-semibold text-slate-500 sm:flex">
+                                    Per halaman
+                                    <select x-model.number="perPage" @change="resetAndRefresh()"
+                                        class="rounded-xl border-slate-200 py-2 text-sm focus:border-[#0F4C81] focus:ring-[#0F4C81]">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                </label>
+                                <button type="button" @click="previousPage()" :disabled="loading || pagination.current_page <= 1"
+                                    class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+                                    Sebelumnya
+                                </button>
+                                <button type="button" @click="nextPage()" :disabled="loading || pagination.current_page >= pagination.last_page"
+                                    class="rounded-2xl bg-[#0F4C81] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#0b3b64] disabled:cursor-not-allowed disabled:opacity-40">
+                                    Berikutnya
+                                </button>
+                            </div>
                         </div>
                     </section>
                 </div>
