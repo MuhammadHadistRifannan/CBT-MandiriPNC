@@ -17,6 +17,7 @@ class Prodi extends Model
         'jurusan',
         'peminat',
         'daya_tampung',
+        'kuota',
         'keketatan',
     ];
 
@@ -25,6 +26,7 @@ class Prodi extends Model
         return [
             'peminat' => 'integer',
             'daya_tampung' => 'integer',
+            'kuota' => 'integer',
             'keketatan' => 'decimal:2',
         ];
     }

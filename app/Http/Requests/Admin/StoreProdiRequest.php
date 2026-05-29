@@ -32,16 +32,13 @@ class StoreProdiRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('prodi', 'nama_prodi')
-                    ->where(fn ($query) => $query
-                        ->where('tingkat', $this->input('tingkat'))
-                        ->where('jurusan', $this->input('jurusan')))
-                    ->ignore($prodi),
+                Rule::unique('prodi', 'nama_prodi')->ignore($prodi),
             ],
             'tingkat' => ['required', Rule::in(Prodi::TINGKAT)],
             'jurusan' => ['required', 'string', 'max:255'],
             'peminat' => ['required', 'integer', 'min:0'],
             'daya_tampung' => ['required', 'integer', 'min:1'],
+            'kuota' => ['required', 'integer', 'min:0'],
             'keketatan_persen' => ['required', 'numeric', 'between:0,100'],
         ];
     }
@@ -49,7 +46,7 @@ class StoreProdiRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nama_prodi.unique' => 'Program studi dengan jenjang dan jurusan tersebut sudah tersedia.',
+            'nama_prodi.unique' => 'Nama program studi tersebut sudah tersedia.',
             'keketatan_persen.between' => 'Keketatan harus berada di antara 0 sampai 100 persen.',
         ];
     }

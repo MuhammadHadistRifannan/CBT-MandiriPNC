@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UjianFlagStatus;
 use App\Enums\UjianStatus;
 use App\Models\Peserta;
 use App\Models\Ujian;
@@ -67,6 +68,80 @@ class PengawasDashboardTest extends TestCase
         $this->actingAs($user)
             ->get(route('pengawas.dashboard'))
             ->assertRedirect(route('dashboard'));
+    }
+
+    public function test_pengawas_can_flag_participant_from_dashboard(): void
+    {
+        $pengawas = User::factory()->create(['role' => UserRole::Pengawas->value]);
+        $participant = $this->createParticipant('Peserta Flag', 'CBT-FLAG');
+        $ujian = Ujian::create([
+            'user_id' => $participant->id,
+            'kode_ujian' => 'UJIAN-FLAG',
+            'status' => UjianStatus::InExam,
+            'started_at' => now(),
+            'duration_minutes' => 120,
+        ]);
+
+        $this->actingAs($pengawas)
+            ->patchJson(route('pengawas.dashboard.flag', $ujian), [
+                'flag_status' => UjianFlagStatus::Suspicious->value,
+                'flagged_reason' => 'Sering berpindah tab.',
+            ])
+            ->assertOk()
+            ->assertJsonPath('participant.flag_status', UjianFlagStatus::Suspicious->value)
+            ->assertJsonPath('participant.flagged_reason', 'Sering berpindah tab.');
+
+        $this->assertDatabaseHas('ujian', [
+            'id' => $ujian->id,
+            'flag_status' => UjianFlagStatus::Suspicious->value,
+            'flagged_reason' => 'Sering berpindah tab.',
+        ]);
+
+        $this->actingAs($pengawas)
+            ->getJson(route('pengawas.dashboard.data'))
+            ->assertOk()
+            ->assertJsonPath('stats.flagged', 1)
+            ->assertJsonPath('monitoring.0.flag_status', UjianFlagStatus::Suspicious->value);
+    }
+
+    public function test_pengawas_can_control_participant_exam_timer(): void
+    {
+        $pengawas = User::factory()->create(['role' => UserRole::Pengawas->value]);
+        $participant = $this->createParticipant('Peserta Timer', 'CBT-TIMER');
+        $ujian = Ujian::create([
+            'user_id' => $participant->id,
+            'kode_ujian' => 'UJIAN-TIMER',
+            'status' => UjianStatus::CheckedIn,
+            'duration_minutes' => 120,
+        ]);
+
+        $this->actingAs($pengawas)
+            ->patchJson(route('pengawas.dashboard.timer', $ujian), [
+                'action' => 'start',
+            ])
+            ->assertOk()
+            ->assertJsonPath('participant.status', UjianStatus::InExam->value);
+
+        $ujian->refresh();
+        $this->assertSame(UjianStatus::InExam, $ujian->status);
+        $this->assertNotNull($ujian->started_at);
+
+        $this->actingAs($pengawas)
+            ->patchJson(route('pengawas.dashboard.timer', $ujian), [
+                'action' => 'extend',
+                'minutes' => 15,
+            ])
+            ->assertOk()
+            ->assertJsonPath('participant.duration_minutes', 135);
+
+        $this->actingAs($pengawas)
+            ->patchJson(route('pengawas.dashboard.timer', $ujian), [
+                'action' => 'stop',
+            ])
+            ->assertOk()
+            ->assertJsonPath('participant.remaining', '00:00');
+
+        $this->assertLessThanOrEqual(1, $ujian->refresh()->duration_minutes);
     }
 
     public function test_pengawas_login_is_redirected_to_pengawas_dashboard(): void

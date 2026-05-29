@@ -99,6 +99,23 @@
                     </span>
                 </span>
             </a>
+
+            <a href="{{ route('admin.pengumuman') }}"
+                class="group flex items-center gap-3 rounded-2xl px-3 py-3 transition-all duration-200 {{ request()->routeIs('admin.pengumuman*') ? 'bg-[#0F4C81] text-white shadow-lg shadow-blue-900/20' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ request()->routeIs('admin.pengumuman*') ? 'bg-white/15' : 'bg-white/5 group-hover:bg-white/10' }}">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l6 6v10a2 2 0 01-2 2z" />
+                    </svg>
+                </span>
+                <span class="min-w-0">
+                    <span class="block truncate text-sm font-semibold">Pengumuman PMB</span>
+                    <span class="block truncate text-xs {{ request()->routeIs('admin.pengumuman*') ? 'text-blue-100' : 'text-slate-500' }}">
+                        Publish hasil seleksi
+                    </span>
+                </span>
+            </a>
         </div>
     </nav>
 

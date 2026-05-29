@@ -16,6 +16,7 @@
         stats: @js($stats),
         monitoring: @js($monitoring),
         alerts: @js($alerts),
+        flagOptions: @js($flagOptions),
         updatedAt: @js($updatedAt),
         init() {
             this.poller = setInterval(() => this.refresh(), 5000);
@@ -31,9 +32,81 @@
                 this.stats = data.stats;
                 this.monitoring = data.monitoring;
                 this.alerts = data.alerts;
+                this.flagOptions = data.flagOptions;
                 this.updatedAt = data.updatedAt;
             } finally {
                 this.loading = false;
+            }
+        },
+        async updateFlag(exam, flagStatus) {
+            const previousStatus = exam.flag_status;
+            let reason = exam.flagged_reason || '';
+
+            if (flagStatus !== 'normal') {
+                reason = window.prompt('Catatan flag peserta:', reason) ?? reason;
+            }
+
+            exam.flag_status = flagStatus;
+            const selected = this.flagOptions.find((option) => option.value === flagStatus);
+            exam.flag_label = selected ? selected.label : flagStatus;
+
+            try {
+                const response = await fetch(@js(route('pengawas.dashboard.flag', ['ujian' => '__ID__'])).replace('__ID__', exam.id), {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                    },
+                    body: JSON.stringify({
+                        flag_status: flagStatus,
+                        flagged_reason: reason
+                    })
+                });
+
+                if (!response.ok) throw new Error('Flag gagal disimpan.');
+
+                const data = await response.json();
+                exam.flag_status = data.participant.flag_status;
+                exam.flag_label = data.participant.flag_label;
+                exam.flag_class = data.participant.flag_class;
+                exam.flagged_reason = data.participant.flagged_reason;
+                this.refresh();
+            } catch (error) {
+                exam.flag_status = previousStatus;
+                alert('Status flag peserta gagal diperbarui.');
+            }
+        },
+        async updateTimer(exam, action, minutes = null) {
+            let payload = { action };
+
+            if (action === 'extend') {
+                const value = minutes ?? window.prompt('Tambah waktu berapa menit?', '10');
+                if (!value) return;
+                payload.minutes = Number(value);
+            }
+
+            try {
+                const response = await fetch(@js(route('pengawas.dashboard.timer', ['ujian' => '__ID__'])).replace('__ID__', exam.id), {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(Object.values(data.errors || {})[0]?.[0] || 'Timer gagal diperbarui.');
+                }
+
+                const data = await response.json();
+                Object.assign(exam, data.participant);
+                this.refresh();
+            } catch (error) {
+                alert(error.message);
             }
         },
         alertClass(tone) {
@@ -169,6 +242,8 @@
                                             <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Mulai</th>
                                             <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Sisa Waktu</th>
                                             <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Progress</th>
+                                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Flag</th>
+                                            <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Timer</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100">
@@ -191,11 +266,40 @@
                                                         <div class="h-full rounded-full bg-[#0F4C81]" :style="`width: ${exam.progress}%`"></div>
                                                     </div>
                                                 </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="space-y-2">
+                                                        <span class="inline-flex rounded-xl px-3 py-1 text-xs font-bold" :class="exam.flag_class" x-text="exam.flag_label"></span>
+                                                        <select :value="exam.flag_status" @change="updateFlag(exam, $event.target.value)"
+                                                            class="block w-40 rounded-xl border-slate-200 py-2 text-xs font-semibold focus:border-[#0F4C81] focus:ring-[#0F4C81]">
+                                                            <template x-for="option in flagOptions" :key="option.value">
+                                                                <option :value="option.value" x-text="option.label"></option>
+                                                            </template>
+                                                        </select>
+                                                        <p class="max-w-[12rem] truncate text-xs text-slate-500" x-show="exam.flagged_reason" x-text="exam.flagged_reason"></p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <button type="button" @click="updateTimer(exam, 'start')"
+                                                            class="rounded-xl bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 transition hover:bg-emerald-100">
+                                                            Start
+                                                        </button>
+                                                        <button type="button" @click="updateTimer(exam, 'stop')"
+                                                            class="rounded-xl bg-red-50 px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-100">
+                                                            Stop
+                                                        </button>
+                                                        <button type="button" @click="updateTimer(exam, 'extend', 10)"
+                                                            class="rounded-xl bg-blue-50 px-3 py-2 text-xs font-black text-[#0F4C81] transition hover:bg-blue-100">
+                                                            +10m
+                                                        </button>
+                                                    </div>
+                                                    <p class="mt-2 text-xs text-slate-500">Durasi: <span x-text="exam.duration_minutes"></span> menit</p>
+                                                </td>
                                             </tr>
                                         </template>
                                         <template x-if="monitoring.length === 0">
                                             <tr>
-                                                <td colspan="5" class="px-6 py-14 text-center text-sm text-slate-500">
+                                                <td colspan="7" class="px-6 py-14 text-center text-sm text-slate-500">
                                                     Belum ada aktivitas ujian untuk dipantau.
                                                 </td>
                                             </tr>

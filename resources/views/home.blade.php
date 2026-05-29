@@ -122,6 +122,13 @@
                         <span
                             class="absolute left-0 -bottom-1 w-0 h-0.5 bg-[#0F65B6] transition-all duration-300 group-hover:w-full"></span>
                     </a>
+                    <a href="{{ route('pengumuman.index') }}" class="hover:text-[#0F65B6] transition relative group">
+
+                        Pengumuman
+
+                        <span
+                            class="absolute left-0 -bottom-1 w-0 h-0.5 bg-[#0F65B6] transition-all duration-300 group-hover:w-full"></span>
+                    </a>
                     @if (auth()->user())
                         <a href="{{ route('dashboard') }}" class="hover:text-[#0F65B6] transition relative group font-extrabold text-lg">
     
@@ -206,6 +213,10 @@
                 <a href="#kontak"
                     class="block rounded-2xl px-4 py-4 hover:bg-slate-100 text-sm font-semibold text-slate-700">
                     Kontak
+                </a>
+                <a href="{{ route('pengumuman.index') }}"
+                    class="block rounded-2xl px-4 py-4 hover:bg-slate-100 text-sm font-semibold text-slate-700">
+                    Pengumuman
                 </a>
                 @if (auth()->user())
                 <a href="{{ route('dashboard') }}"

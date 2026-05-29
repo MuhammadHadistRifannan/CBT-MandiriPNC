@@ -37,31 +37,9 @@
                 </span>
             </a>
 
-            <div class="mt-2 flex items-center gap-3 rounded-2xl px-3 py-3 text-slate-400">
-                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12h4l3-8 4 16 3-8h4" />
-                    </svg>
-                </span>
-                <span class="min-w-0 flex-1 text-sm font-medium">Monitoring Ujian</span>
-                <span class="rounded-full bg-white/5 px-2 py-1 text-[10px]">Segera</span>
-            </div>
-
-            <div class="flex items-center gap-3 rounded-2xl px-3 py-3 text-slate-400">
-                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5V4H2v16h5m10 0v-2a4 4 0 00-8 0v2m8 0H9m4-10a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </span>
-                <span class="min-w-0 flex-1 text-sm font-medium">Peserta Aktif</span>
-                <span class="rounded-full bg-white/5 px-2 py-1 text-[10px]">Segera</span>
-            </div>
-        </div>
 
         <div>
-            <p class="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Operasional</p>
+            <p class="mb-3 px-3 py-6 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Operasional</p>
             <a href="{{ route('pengawas.check-in') }}"
                 class="mb-2 flex items-center gap-3 rounded-2xl px-3 py-3 {{ request()->routeIs('pengawas.check-in*') ? 'bg-[#0F4C81] text-white shadow-lg shadow-blue-950/30' : 'text-slate-300 transition hover:bg-white/5 hover:text-white' }}">
                 <span class="flex h-11 w-11 items-center justify-center rounded-xl {{ request()->routeIs('pengawas.check-in*') ? 'bg-white/15' : 'bg-white/5' }}">
@@ -101,20 +79,7 @@
                     <span class="block text-xs {{ request()->routeIs('pengawas.activities*') ? 'text-blue-100' : 'text-slate-500' }}">Log perilaku ujian</span>
                 </span>
             </a>
-            @foreach ([
-                ['Pengaturan Sesi', 'M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['Laporan Pengawas', 'M9 17v-6m4 6V7m4 10V4M5 20h14'],
-            ] as [$label, $path])
-                <div class="flex items-center gap-3 rounded-2xl px-3 py-3 text-slate-400">
-                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $path }}" />
-                        </svg>
-                    </span>
-                    <span class="min-w-0 flex-1 text-sm font-medium">{{ $label }}</span>
-                    <span class="rounded-full bg-white/5 px-2 py-1 text-[10px]">Segera</span>
-                </div>
-            @endforeach
+
         </div>
     </nav>
 

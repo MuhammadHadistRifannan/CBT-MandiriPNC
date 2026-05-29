@@ -30,6 +30,7 @@
                 jurusan: @js(old('jurusan', '')),
                 peminat: @js(old('peminat', 0)),
                 daya_tampung: @js(old('daya_tampung', '')),
+                kuota: @js(old('kuota', '')),
                 keketatan_persen: @js(old('keketatan_persen', ''))
             },
             add() {
@@ -42,6 +43,7 @@
                     jurusan: '',
                     peminat: 0,
                     daya_tampung: '',
+                    kuota: '',
                     keketatan_persen: ''
                 };
                 this.modalOpen = true;
@@ -98,9 +100,9 @@
                     </div>
 
                     <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <p class="text-sm font-medium text-slate-500">Total Daya Tampung</p>
-                        <h2 class="mt-2 text-3xl font-black text-slate-800">{{ number_format($stats['daya_tampung']) }}</h2>
-                        <p class="mt-4 text-sm text-slate-500">Kursi penerimaan</p>
+                        <p class="text-sm font-medium text-slate-500">Total Kuota Seleksi</p>
+                        <h2 class="mt-2 text-3xl font-black text-slate-800">{{ number_format($stats['kuota']) }}</h2>
+                        <p class="mt-4 text-sm text-slate-500">Kursi untuk ranking pengumuman</p>
                     </div>
 
                     <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -179,6 +181,7 @@
                                     <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Program Studi</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Jenjang</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Daya Tampung</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Kuota</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Peminat</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Keketatan</th>
                                     <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Aksi</th>
@@ -201,6 +204,9 @@
                                             {{ number_format($prodi->daya_tampung) }}
                                         </td>
                                         <td class="px-6 py-5 text-sm font-semibold text-slate-700">
+                                            {{ number_format($prodi->kuota) }}
+                                        </td>
+                                        <td class="px-6 py-5 text-sm font-semibold text-slate-700">
                                             {{ number_format($prodi->peminat) }}
                                         </td>
                                         <td class="px-6 py-5">
@@ -218,6 +224,7 @@
                                                         'jurusan' => $prodi->jurusan,
                                                         'peminat' => $prodi->peminat,
                                                         'daya_tampung' => $prodi->daya_tampung,
+                                                        'kuota' => $prodi->kuota,
                                                         'keketatan_persen' => round((float) $prodi->keketatan * 100, 2),
                                                     ]), @js(route('admin.prodi.update', $prodi)))"
                                                     class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 transition hover:bg-amber-200"
@@ -246,7 +253,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-14 text-center text-slate-500">
+                                        <td colspan="7" class="px-6 py-14 text-center text-slate-500">
                                             Belum ada program studi yang sesuai dengan filter.
                                         </td>
                                     </tr>
@@ -326,6 +333,15 @@
                             <input type="number" name="daya_tampung" x-model="form.daya_tampung" min="1" required
                                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-[#0F4C81] focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/20">
                             @error('daya_tampung')
+                                <p class="mt-2 text-sm font-semibold text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Kuota Seleksi</label>
+                            <input type="number" name="kuota" x-model="form.kuota" min="0" required
+                                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-[#0F4C81] focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/20">
+                            @error('kuota')
                                 <p class="mt-2 text-sm font-semibold text-red-600">{{ $message }}</p>
                             @enderror
                         </div>

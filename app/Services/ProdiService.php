@@ -38,6 +38,7 @@ class ProdiService
             'jurusan' => trim($data['jurusan']),
             'peminat' => (int) $data['peminat'],
             'daya_tampung' => (int) $data['daya_tampung'],
+            'kuota' => (int) $data['kuota'],
             'keketatan' => round(((float) $data['keketatan_persen']) / 100, 2),
         ];
     }

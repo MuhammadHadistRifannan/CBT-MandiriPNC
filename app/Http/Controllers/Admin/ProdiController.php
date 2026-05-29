@@ -45,6 +45,7 @@ class ProdiController extends Controller
         $stats = [
             'total' => Prodi::count(),
             'daya_tampung' => (int) Prodi::sum('daya_tampung'),
+            'kuota' => (int) Prodi::sum('kuota'),
             'favorite' => $favorite?->nama_prodi,
             'tightest' => $tightest?->keketatan,
         ];

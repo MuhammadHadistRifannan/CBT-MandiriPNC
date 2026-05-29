@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 use App\Http\Controllers\Admin\DokumenController as AdminDokumenController;
 use App\Http\Controllers\Admin\ProdiController as AdminProdiController;
 use App\Http\Controllers\Admin\SoalCbtController;
@@ -30,6 +31,10 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/home', fn () => view('home'))->name('home');
+Route::get('/home/pengumuman', [App\Http\Controllers\AnnouncementController::class, 'index'])->name('pengumuman.index');
+Route::post('/home/pengumuman', [App\Http\Controllers\AnnouncementController::class, 'check'])
+    ->middleware('throttle:6,1')
+    ->name('pengumuman.check');
 
 Route::post('/payment/notification', [PaymentController::class, 'notification'])
     ->name('payment.notification');
@@ -69,6 +74,10 @@ Route::prefix('admin')->middleware(['auth', RoleBasedMiddleware::class.':'.UserR
     Route::get('dokumen', [AdminDokumenController::class, 'index'])->name('admin.dokumen');
     Route::get('dokumen/{dokumen}', [AdminDokumenController::class, 'show'])->name('admin.dokumen.show');
     Route::patch('dokumen/{dokumen}/review', [AdminDokumenController::class, 'review'])->name('admin.dokumen.review');
+    Route::get('pengumuman', [AdminAnnouncementController::class, 'index'])->name('admin.pengumuman');
+    Route::post('pengumuman/batches', [AdminAnnouncementController::class, 'storeBatch'])->name('admin.pengumuman.batches.store');
+    Route::put('pengumuman/batches/{batch}', [AdminAnnouncementController::class, 'updateBatch'])->name('admin.pengumuman.batches.update');
+    Route::post('pengumuman/batches/{batch}/generate', [AdminAnnouncementController::class, 'generate'])->name('admin.pengumuman.batches.generate');
     Route::get('program-studi', [AdminProdiController::class, 'index'])->name('admin.prodi');
     Route::post('program-studi', [AdminProdiController::class, 'store'])->name('admin.prodi.store');
     Route::put('program-studi/{prodi}', [AdminProdiController::class, 'update'])->name('admin.prodi.update');
@@ -87,6 +96,8 @@ Route::prefix('admin')->middleware(['auth', RoleBasedMiddleware::class.':'.UserR
 Route::prefix('pengawas')->middleware(['auth', RoleBasedMiddleware::class.':'.UserRole::Pengawas->value])->group(function () {
     Route::get('dashboard', [PengawasDashboardController::class, 'index'])->name('pengawas.dashboard');
     Route::get('dashboard/data', [PengawasDashboardController::class, 'data'])->name('pengawas.dashboard.data');
+    Route::patch('dashboard/ujian/{ujian}/flag', [PengawasDashboardController::class, 'updateFlag'])->name('pengawas.dashboard.flag');
+    Route::patch('dashboard/ujian/{ujian}/timer', [PengawasDashboardController::class, 'updateTimer'])->name('pengawas.dashboard.timer');
     Route::get('check-in', [PengawasCheckInController::class, 'index'])->name('pengawas.check-in');
     Route::post('check-in/lookup', [PengawasCheckInController::class, 'lookup'])->name('pengawas.check-in.lookup');
     Route::post('check-in/{ujian}/confirm', [PengawasCheckInController::class, 'confirm'])->name('pengawas.check-in.confirm');

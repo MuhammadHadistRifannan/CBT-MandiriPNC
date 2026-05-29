@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UjianCheckInMethod;
+use App\Enums\UjianFlagStatus;
 use App\Enums\UjianStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ class Ujian extends Model
         'user_id',
         'kode_ujian',
         'status',
+        'flag_status',
         'progress_percentage',
         'nilai',
         'duration_minutes',
@@ -32,6 +34,7 @@ class Ujian extends Model
     {
         return [
             'status' => UjianStatus::class,
+            'flag_status' => UjianFlagStatus::class,
             'progress_percentage' => 'integer',
             'nilai' => 'decimal:2',
             'duration_minutes' => 'integer',

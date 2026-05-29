@@ -93,6 +93,21 @@ class AdminProdiTest extends TestCase
         $this->assertDatabaseHas('prodi', ['id' => $primary->id]);
     }
 
+    public function test_admin_cannot_create_duplicate_prodi_name(): void
+    {
+        $admin = User::factory()->create(['role' => UserRole::Admin->value]);
+        $this->createProdi(['nama_prodi' => 'Teknik Informatika']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.prodi.store'), [
+                ...$this->validPayload(),
+                'nama_prodi' => 'Teknik Informatika',
+                'tingkat' => 'd3',
+                'jurusan' => 'Jurusan Berbeda',
+            ])
+            ->assertSessionHasErrors('nama_prodi');
+    }
+
     private function validPayload(): array
     {
         return [
@@ -101,6 +116,7 @@ class AdminProdiTest extends TestCase
             'jurusan' => 'Komputer dan Bisnis',
             'peminat' => 845,
             'daya_tampung' => 120,
+            'kuota' => 80,
             'keketatan_persen' => 42,
         ];
     }
